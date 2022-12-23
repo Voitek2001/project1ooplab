@@ -1,5 +1,7 @@
 package agh.ics.oop;
 
+import agh.ics.oop.MapElements.Animal;
+
 import java.util.Comparator;
 
 public class PrimaryXComparator implements Comparator<ElementOfBoundarySet> {

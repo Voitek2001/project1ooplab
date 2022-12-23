@@ -7,18 +7,12 @@ import java.util.Random;
 public class Animal extends AbstractWorldElement {
     private MapDirection orientation = MapDirection.NORTH;
     private Vector2d position;
-
-
-
     private final Genotype genotype;
     private final AbstractWorldMap worldMap;
-
     private int energy;
-
     private final int id = IDGenerator.currId.getAndIncrement();
-
     private AnimalStatus status;
-
+    private int currentIndexOfGen;
     public Animal(AbstractWorldMap map) {
         this(map, new Vector2d(2, 2));
     }
@@ -35,6 +29,7 @@ public class Animal extends AbstractWorldElement {
         this.energy = initEnergy;
         this.status = AnimalStatus.ALIVE;
         this.genotype = genotype;
+        this.currentIndexOfGen = 0;
     }
 
     public MapDirection getOrientation() {
@@ -116,11 +111,9 @@ public class Animal extends AbstractWorldElement {
     public void setEnergy(int energy) {
         this.energy = energy;
     }
-
     public int getEnergy() {
         return energy;
     }
-
     public AnimalStatus getStatus() {
         return status;
     }
@@ -129,5 +122,8 @@ public class Animal extends AbstractWorldElement {
     }
     public Genotype getGenotype() {
         return genotype;
+    }
+    public void setStatus(AnimalStatus newStatus) {
+
     }
 }

@@ -1,6 +1,6 @@
 package agh.ics.oop;
 
-import java.util.Comparator;
+import agh.ics.oop.MapElements.Animal;
 
 public class PrimaryYComparator extends AbstractComparator {
 

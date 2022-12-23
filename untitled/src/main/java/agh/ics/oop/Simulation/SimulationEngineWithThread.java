@@ -1,6 +1,7 @@
 package agh.ics.oop;
 
 
+import agh.ics.oop.MapElements.Animal;
 import agh.ics.oop.gui.IRenderGridObserver;
 
 import java.util.ArrayList;

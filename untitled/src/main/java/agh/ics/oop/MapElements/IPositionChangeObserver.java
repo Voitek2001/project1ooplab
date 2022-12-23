@@ -1,6 +1,6 @@
 package agh.ics.oop;
 
-import java.util.Objects;
+import agh.ics.oop.MapElements.AbstractWorldElement;
 
 public interface IPositionChangeObserver {
 

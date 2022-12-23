@@ -1,5 +1,10 @@
 package agh.ics.oop;
 
+import agh.ics.oop.MapElements.AbstractWorldElement;
+import agh.ics.oop.MapElements.Animal;
+import agh.ics.oop.MapElements.Grass;
+import agh.ics.oop.MapElements.IMapElement;
+
 import java.util.*;
 
 public class GrassField extends AbstractWorldMap {

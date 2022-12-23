@@ -3,6 +3,8 @@ package agh.ics.oop;
 import java.util.NavigableSet;
 import java.util.Optional;
 import java.util.TreeSet;
+
+import agh.ics.oop.MapElements.Animal;
 import javafx.util.Pair;
 
 

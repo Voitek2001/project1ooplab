@@ -1,5 +1,8 @@
 package agh.ics.oop;
 
+import agh.ics.oop.MapElements.Animal;
+import agh.ics.oop.MapElements.AnimalStatus;
+import agh.ics.oop.MapElements.Genotype;
 import agh.ics.oop.gui.IRenderGridObserver;
 import javafx.util.Pair;
 
@@ -12,11 +15,12 @@ public class SimulationEngine implements IEngine {
     private final List<Animal> animalsList = new ArrayList<>();
     private final List<IRenderGridObserver> renderGridobservers = new ArrayList<>();
     private final int moveDelay;
+    private final SimulationConfig simulationConfig;
 
-    public SimulationEngine(AbstractWorldMap map, EvolutionType evolutionType, int numberOfInitAnimals, int moveDelay) throws IllegalArgumentException {
+    public SimulationEngine(AbstractWorldMap map, SimulationConfig simulationConfig, int numberOfInitAnimals, int moveDelay) throws IllegalArgumentException {
 
         this.map = map;
-        int initEnergy = 50;
+        this.simulationConfig = simulationConfig;
         this.moveDelay = moveDelay;
         Bounds bounds = map.getBounds();
         int height = bounds.upperRight().y() - bounds.lowerLeft().y();
@@ -24,11 +28,10 @@ public class SimulationEngine implements IEngine {
         Integer[] randomStartingPositions = RandomGenerator.generateDistRandomNumbers(numberOfInitAnimals, height * width);
         for (int i = 0; i < numberOfInitAnimals; i++) {
             Vector2d newPosition = new Vector2d(randomStartingPositions[i] % width, randomStartingPositions[i] / height);
-            Animal animal = new Animal(map, newPosition, initEnergy);
+            Animal animal = new Animal(map, newPosition, this.simulationConfig.animalStartEnergy());
             map.place(animal);
             this.animalsList.add(animal);
         }
-
     }
 
     @Override
@@ -41,20 +44,19 @@ public class SimulationEngine implements IEngine {
             // 3. Jedzenie
             feedAnimals();
             // 4. Rozmnażanie
-            reproductAnimals(20, 10);
+            reproductAnimals();
             try {
                 Thread.sleep(this.moveDelay);
             }
             catch (InterruptedException e) {
                 return;
             }
-
         }
     }
 
     private void removeDeadAnimals() {
+        this.animalsList.forEach(animal -> animal.removeObserver());
         this.animalsList.removeIf(animal -> Objects.equals(animal.getStatus(), AnimalStatus.DEAD));
-
     }
 
     private void simulateMove() {
@@ -66,54 +68,48 @@ public class SimulationEngine implements IEngine {
 
     }
 
-    public void reproductAnimals(int minimumEnergyToReproduction, int lengthOfGenotype) {
+    public void reproductAnimals() {
         this.map.getAnimalContainers().forEach((currPos, currAnimalContainer) -> {
             Optional<Pair<Animal, Animal>> greatestPair = currAnimalContainer.getTwoAnimalsWithGreatestEnergy();
             greatestPair.ifPresent((animalPair) -> {
                 Animal firstAnimal = animalPair.getKey();
                 Animal secondAnimal = animalPair.getValue();
-                if (canReproduct(firstAnimal, secondAnimal, minimumEnergyToReproduction)) {
+                if (canReproduct(firstAnimal, secondAnimal)) {
                     // create animal
-                    Animal child = createNewAnimal(firstAnimal, secondAnimal, lengthOfGenotype);
+                    Animal child = createNewAnimal(firstAnimal, secondAnimal);
                     this.map.place(child);
                 }
-
             });
         });
     }
 
-    private Boolean canReproduct(Animal firstAnimal, Animal secondAnimal, int minimumEnergyToReproduction) {
-        return firstAnimal.getEnergy() >= minimumEnergyToReproduction
-                && secondAnimal.getEnergy() >= minimumEnergyToReproduction;
+    private Boolean canReproduct(Animal firstAnimal, Animal secondAnimal) {
+        return firstAnimal.getEnergy() >= this.simulationConfig.energyToCopulation()
+                && secondAnimal.getEnergy() >= this.simulationConfig.energyToCopulation();
     }
 
-    private Genotype mutateGenotype(Genotype genotype) {
-        // if lekka korekta
-        int length = genotype.getGenes().size();
-        int[] operations = new int[length];
-        Random rand = new Random();
+    private Animal createNewAnimal(Animal firstAnimal, Animal secondAnimal) {
+        float energyRatio = (float) firstAnimal.getEnergy() / (firstAnimal.getEnergy() + secondAnimal.getEnergy());
+        int indexOfCut = (int) energyRatio * this.simulationConfig.lengthGenome();
+        decreateParentEnergy(firstAnimal, secondAnimal);
+        Genotype childGenotype = new Genotype(firstAnimal.getGenotype().cutLeftSide(indexOfCut), secondAnimal.getGenotype().cutRightSide(indexOfCut));
+        // domyślne ustawienie to pełna predestynacja
 
-        for (int i = 0; i < length; i++) {
-            //TODO:change hardcoded bound
-            operations[i] = rand.nextInt(1);
-
+        if (!this.simulationConfig.isPredistination()) {
+            childGenotype.applyABitOfMadness();
+        }
+        if (!this.simulationConfig.isRandomness()) {
+            childGenotype.applySmallCorrect();
+        } else {
+            childGenotype.applyFullyRandomness();
         }
 
-
-        return genotype;
-
+        return new Animal(this.map, firstAnimal.getPosition(), 2 * this.simulationConfig.energyToCopulation(), childGenotype);
     }
 
-    private Animal createNewAnimal(Animal firstAnimal, Animal secondAnimal, int lengthOfGenotype) {
-        float energyRatio = (float) firstAnimal.getEnergy() / (firstAnimal.getEnergy() + secondAnimal.getEnergy());
-        int EnergyToReproductChild = 20;
-        int indexOfCut = (int) energyRatio * lengthOfGenotype;
-        Genotype childGenotype = new Genotype(firstAnimal.getGenotype().cutLeftSide(indexOfCut), secondAnimal.getGenotype().cutRightSide(indexOfCut));
-        Genotype mutatedChildGenotype = mutateGenotype(childGenotype);
-        firstAnimal.setEnergy(firstAnimal.getEnergy() - EnergyToReproductChild);
-        secondAnimal.setEnergy(secondAnimal.getEnergy() - EnergyToReproductChild);
-        return new Animal(this.map, firstAnimal.getPosition(), 2 * EnergyToReproductChild, mutatedChildGenotype);
-
+    private void decreateParentEnergy(Animal firstParent, Animal secondParent) {
+        firstParent.setEnergy(firstParent.getEnergy() - this.simulationConfig.energyToCopulation());
+        secondParent.setEnergy(secondParent.getEnergy() - this.simulationConfig.energyToCopulation());
     }
 
 }

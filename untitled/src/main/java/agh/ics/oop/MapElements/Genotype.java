@@ -24,7 +24,7 @@ public class Genotype {
         return this.genes.subList(indexOfCut, genes.size()-1);
     }
 
-    public void applySmallCorrectVariant() {
+    public void applySmallCorrect() {
         Random rand = new Random();
         this.genes.replaceAll(mapDirection -> {
             if (rand.nextInt(2) == 1) {
@@ -32,9 +32,6 @@ public class Genotype {
             }
             return mapDirection.previous();
         });
-    }
-    public List<MapDirection> getGenes() {
-        return this.genes;
     }
 
     public void applyABitOfMadness() {
@@ -50,8 +47,15 @@ public class Genotype {
         }
     }
 
+    public void applyFullyRandomness() {
+    }
     public int[] getGenesTravelOrder() {
         return this.genesTravelOrder;
     }
+
+    public List<MapDirection> getGenes() {
+        return this.genes;
+    }
+
 
 }

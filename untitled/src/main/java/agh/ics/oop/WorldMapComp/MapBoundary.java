@@ -1,5 +1,8 @@
 package agh.ics.oop;
 
+import agh.ics.oop.MapElements.AbstractWorldElement;
+import agh.ics.oop.MapElements.IPositionChangeObserver;
+
 import java.util.SortedSet;
 import java.util.TreeSet;
 

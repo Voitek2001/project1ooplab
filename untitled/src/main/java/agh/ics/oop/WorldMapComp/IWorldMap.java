@@ -1,6 +1,9 @@
 package agh.ics.oop;
 
 
+import agh.ics.oop.MapElements.Animal;
+import agh.ics.oop.MapElements.IMapElement;
+
 import java.util.Optional;
 
 /**

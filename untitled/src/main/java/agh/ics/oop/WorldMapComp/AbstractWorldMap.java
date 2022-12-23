@@ -1,6 +1,9 @@
 package agh.ics.oop;
 
-import javafx.util.Pair;
+import agh.ics.oop.MapElements.AbstractWorldElement;
+import agh.ics.oop.MapElements.Animal;
+import agh.ics.oop.MapElements.IMapElement;
+import agh.ics.oop.MapElements.IPositionChangeObserver;
 
 import java.util.HashMap;
 import java.util.Optional;
@@ -14,7 +17,6 @@ public abstract class AbstractWorldMap implements IWorldMap, IPositionChangeObse
 
     protected final MapBoundary mapBoundary = new MapBoundary();
 
-    protected MapVisualizer visualizer;
 
     protected HashMap<Vector2d, IMapElement> getElementsOnMap() {
         return elementsOnMap;
@@ -56,10 +58,6 @@ public abstract class AbstractWorldMap implements IWorldMap, IPositionChangeObse
         HashMap<Vector2d, IMapElement> elementsOnMap = getElementsOnMap();
         elementsOnMap.remove(oldPosition);
         elementsOnMap.put(newPosition, animal);
-    }
-
-    public String toString(Vector2d lowerLeft, Vector2d upperRight) {
-        return visualizer.draw(lowerLeft, upperRight);
     }
 
     public abstract Bounds getBounds();
