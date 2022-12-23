@@ -1,8 +1,10 @@
-package agh.ics.oop;
+package agh.ics.oop.MapElements;
+
+import agh.ics.oop.*;
+import agh.ics.oop.WorldMapComp.AbstractWorldMap;
 
 import java.util.ArrayList;
 import java.util.Objects;
-import java.util.Random;
 
 public class Animal extends AbstractWorldElement {
     private MapDirection orientation = MapDirection.NORTH;

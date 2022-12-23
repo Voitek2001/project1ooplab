@@ -1,6 +1,6 @@
 package agh.ics.oop.gui;
 
-import agh.ics.oop.IMapElement;
+import agh.ics.oop.MapElements.IMapElement;
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;
 import javafx.scene.image.Image;

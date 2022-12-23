@@ -1,4 +1,6 @@
-package agh.ics.oop;
+package agh.ics.oop.MapElements;
+
+import agh.ics.oop.MapDirection;
 
 import java.util.List;
 import java.util.Random;

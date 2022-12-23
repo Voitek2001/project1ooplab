@@ -1,6 +1,9 @@
-package agh.ics.oop;
+package agh.ics.oop.MapElements;
 
-class Grass extends AbstractWorldElement {
+import agh.ics.oop.MapElements.AbstractWorldElement;
+import agh.ics.oop.Vector2d;
+
+public class Grass extends AbstractWorldElement {
     private final Vector2d position;
     public Grass(Vector2d position) {
         this.position = position;

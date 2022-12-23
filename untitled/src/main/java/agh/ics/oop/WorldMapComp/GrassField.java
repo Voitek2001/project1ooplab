@@ -1,9 +1,12 @@
-package agh.ics.oop;
+package agh.ics.oop.WorldMapComp;
 
 import agh.ics.oop.MapElements.AbstractWorldElement;
 import agh.ics.oop.MapElements.Animal;
 import agh.ics.oop.MapElements.Grass;
 import agh.ics.oop.MapElements.IMapElement;
+import agh.ics.oop.Vector2d;
+import agh.ics.oop.WorldMapComp.AbstractWorldMap;
+import agh.ics.oop.WorldMapComp.Bounds;
 
 import java.util.*;
 
@@ -11,10 +14,7 @@ public class GrassField extends AbstractWorldMap {
 
     private final int n;
 
-
-
     public GrassField(int n) {
-        this.visualizer = new MapVisualizer(this);
         this.n = n;
         Integer[] randomCoordinates = generateDistRandomNumbers(n, (int) Math.sqrt(10 * n) * (int) Math.sqrt(10 * n));
         HashMap<Vector2d, IMapElement> elementsOnMap = getElementsOnMap();
@@ -52,11 +52,6 @@ public class GrassField extends AbstractWorldMap {
         elementsOnMap.put(newPosition, mapElement);
     }
 
-    @Override
-    public String toString() {
-        Bounds newBounds = getBounds();
-        return super.toString(newBounds.lowerLeft(), newBounds.upperRight());
-    }
 
     public Bounds getBounds() {
         Vector2d lowerLeft;

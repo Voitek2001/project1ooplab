@@ -1,6 +1,8 @@
-package agh.ics.oop;
+package agh.ics.oop.WorldMapComp;
 
 import agh.ics.oop.MapElements.Animal;
+import agh.ics.oop.WorldMapComp.AbstractComparator;
+import agh.ics.oop.WorldMapComp.ElementOfBoundarySet;
 
 public class PrimaryYComparator extends AbstractComparator {
 

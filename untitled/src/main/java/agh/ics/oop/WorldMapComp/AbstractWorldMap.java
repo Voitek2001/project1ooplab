@@ -1,5 +1,6 @@
-package agh.ics.oop;
+package agh.ics.oop.WorldMapComp;
 
+import agh.ics.oop.*;
 import agh.ics.oop.MapElements.AbstractWorldElement;
 import agh.ics.oop.MapElements.Animal;
 import agh.ics.oop.MapElements.IMapElement;

@@ -1,4 +1,4 @@
-package agh.ics.oop;
+package agh.ics.oop.Simulation;
 
 import java.util.List;
 

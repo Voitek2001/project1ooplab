@@ -1,4 +1,4 @@
-package agh.ics.oop;
+package agh.ics.oop.MapElements;
 
 import java.util.concurrent.atomic.AtomicInteger;
 

@@ -1,14 +1,16 @@
-package agh.ics.oop;
+package agh.ics.oop.MapElements;
+
+import agh.ics.oop.WorldMapComp.IWorldMap;
+import agh.ics.oop.Vector2d;
 
 import java.util.LinkedList;
 import java.util.List;
 
-abstract class AbstractWorldElement implements IMapElement{
+public abstract class AbstractWorldElement implements IMapElement {
 
     protected Vector2d position;
     protected IWorldMap map;
     protected List<IPositionChangeObserver> observers = new LinkedList<>();
-
 
     public Vector2d getPosition() {
         return position;

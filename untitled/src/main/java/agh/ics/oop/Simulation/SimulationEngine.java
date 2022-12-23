@@ -1,8 +1,11 @@
-package agh.ics.oop;
+package agh.ics.oop.Simulation;
 
+import agh.ics.oop.*;
 import agh.ics.oop.MapElements.Animal;
 import agh.ics.oop.MapElements.AnimalStatus;
 import agh.ics.oop.MapElements.Genotype;
+import agh.ics.oop.WorldMapComp.AbstractWorldMap;
+import agh.ics.oop.WorldMapComp.Bounds;
 import agh.ics.oop.gui.IRenderGridObserver;
 import javafx.util.Pair;
 
@@ -55,7 +58,7 @@ public class SimulationEngine implements IEngine {
     }
 
     private void removeDeadAnimals() {
-        this.animalsList.forEach(animal -> animal.removeObserver());
+//        this.animalsList.forEach(animal -> animal.removeObserver());
         this.animalsList.removeIf(animal -> Objects.equals(animal.getStatus(), AnimalStatus.DEAD));
     }
 

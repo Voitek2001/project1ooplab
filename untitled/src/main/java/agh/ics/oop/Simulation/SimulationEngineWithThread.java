@@ -1,7 +1,10 @@
-package agh.ics.oop;
+package agh.ics.oop.Simulation;
 
 
+import agh.ics.oop.WorldMapComp.AbstractWorldMap;
 import agh.ics.oop.MapElements.Animal;
+import agh.ics.oop.MoveDirection;
+import agh.ics.oop.Vector2d;
 import agh.ics.oop.gui.IRenderGridObserver;
 
 import java.util.ArrayList;

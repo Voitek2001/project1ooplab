@@ -1,5 +1,6 @@
-package agh.ics.oop;
+package agh.ics.oop.WorldMapComp;
 
+import agh.ics.oop.Vector2d;
 import java.util.Comparator;
 
 abstract class AbstractComparator implements Comparator<ElementOfBoundarySet> {

@@ -2,6 +2,13 @@ package agh.ics.oop.gui;
 
 
 import agh.ics.oop.*;
+import agh.ics.oop.MapElements.Animal;
+import agh.ics.oop.MapElements.Genotype;
+import agh.ics.oop.Simulation.SimulationEngineWithThread;
+import agh.ics.oop.WorldMapComp.AbstractWorldMap;
+import agh.ics.oop.WorldMapComp.AnimalContainer;
+import agh.ics.oop.WorldMapComp.Bounds;
+import agh.ics.oop.WorldMapComp.GrassField;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.geometry.HPos;
@@ -57,7 +64,7 @@ public class App extends Application implements IRenderGridObserver {
             a.add(MapDirection.NORTH);
             a.add(MapDirection.SOUTH);
             Genotype gen = new Genotype(a);
-            gen.applySmallCorrectVariant();
+            gen.applySmallCorrect();
 
 
             System.out.println("tu");
@@ -75,7 +82,7 @@ public class App extends Application implements IRenderGridObserver {
             this.engine.addObserver(this);
             this.grid = new GridPane();
 
-            System.out.println(this.worldMap);
+//            System.out.println(this.worldMap);
 
 
 //            JSONObject configFile = o.getJSONObject("ConfigurationFile");

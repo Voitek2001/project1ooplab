@@ -1,7 +1,8 @@
-package agh.ics.oop;
+package agh.ics.oop.WorldMapComp;
 
 import agh.ics.oop.MapElements.AbstractWorldElement;
 import agh.ics.oop.MapElements.IPositionChangeObserver;
+import agh.ics.oop.Vector2d;
 
 import java.util.SortedSet;
 import java.util.TreeSet;
