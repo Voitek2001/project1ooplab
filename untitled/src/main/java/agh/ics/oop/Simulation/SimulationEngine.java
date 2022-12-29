@@ -4,8 +4,10 @@ import agh.ics.oop.*;
 import agh.ics.oop.MapElements.Animal;
 import agh.ics.oop.MapElements.AnimalStatus;
 import agh.ics.oop.MapElements.Genotype;
+import agh.ics.oop.MapElements.Grass;
 import agh.ics.oop.WorldMapComp.AbstractWorldMap;
-import agh.ics.oop.WorldMapComp.Bounds;
+import agh.ics.oop.WorldMapComp.AnimalContainer;
+import agh.ics.oop.WorldMapComp.GrassField;
 import agh.ics.oop.gui.IRenderGridObserver;
 import javafx.util.Pair;
 
@@ -15,26 +17,41 @@ import java.util.*;
 public class SimulationEngine implements IEngine {
 
     private final AbstractWorldMap map;
+
+    public List<Animal> getAnimalsList() {
+        return animalsList;
+    }
+
     private final List<Animal> animalsList = new ArrayList<>();
     private final List<IRenderGridObserver> renderGridobservers = new ArrayList<>();
     private final int moveDelay;
     private final SimulationConfig simulationConfig;
 
-    public SimulationEngine(AbstractWorldMap map, SimulationConfig simulationConfig, int numberOfInitAnimals, int moveDelay) throws IllegalArgumentException {
+    public SimulationEngine(SimulationConfig simulationConfig, int moveDelay) throws IllegalArgumentException {
 
-        this.map = map;
+        this.map = new GrassField(simulationConfig);
+
         this.simulationConfig = simulationConfig;
         this.moveDelay = moveDelay;
-        Bounds bounds = map.getBounds();
-        int height = bounds.upperRight().y() - bounds.lowerLeft().y();
-        int width = bounds.upperRight().x() - bounds.lowerLeft().x();
-        Integer[] randomStartingPositions = RandomGenerator.generateDistRandomNumbers(numberOfInitAnimals, height * width);
-        for (int i = 0; i < numberOfInitAnimals; i++) {
-            Vector2d newPosition = new Vector2d(randomStartingPositions[i] % width, randomStartingPositions[i] / height);
-            Animal animal = new Animal(map, newPosition, this.simulationConfig.animalStartEnergy());
+        int height = simulationConfig.height();
+        int width = simulationConfig.width();
+        MoveDirection[] directions = MoveDirection.values();
+        Integer[] randomStartingPositions = RandomGenerator.generateDistRandomNumbers(simulationConfig.animalStarted(), height * width);
+        for (int i = 0; i < simulationConfig.animalStarted(); i++) {
+            Vector2d newPosition = new Vector2d(randomStartingPositions[i] % width, randomStartingPositions[i] / width);
+            List<MoveDirection> newGen = new ArrayList<>(simulationConfig.lengthGenome());
+            for(int j = 0; j < simulationConfig.lengthGenome(); j++) {
+                Random rand = new Random();
+                newGen.add(directions[rand.nextInt(directions.length)]);
+            }
+            Animal animal = new Animal(map, newPosition, this.simulationConfig.animalStartEnergy(), new Genotype(newGen));
+//            Animal todeleteanimal = new Animal(map, newPosition, this.simulationConfig.animalStartEnergy(), new Genotype(newGen));
+//            map.place(todeleteanimal);
+//            this.animalsList.add(todeleteanimal);
             map.place(animal);
             this.animalsList.add(animal);
         }
+
     }
 
     @Override
@@ -48,6 +65,10 @@ public class SimulationEngine implements IEngine {
             feedAnimals();
             // 4. Rozmnażanie
             reproductAnimals();
+            // 5. Porost nowych roślin
+            growNewGrasses();
+
+            printChangesForDebug();
             try {
                 Thread.sleep(this.moveDelay);
             }
@@ -60,6 +81,15 @@ public class SimulationEngine implements IEngine {
     private void removeDeadAnimals() {
 //        this.animalsList.forEach(animal -> animal.removeObserver());
         this.animalsList.removeIf(animal -> Objects.equals(animal.getStatus(), AnimalStatus.DEAD));
+        Map<Vector2d, AnimalContainer> animCont = this.map.getAnimalContainers();
+        this.animalsList
+                .stream()
+                .filter((animal -> animal.getStatus().equals(AnimalStatus.DEAD)))
+                .forEach((animal) -> {
+                    animCont.get(animal.getPosition()).removeAnimal(animal);
+                    this.map.addDeadAtPosition(animal.getPosition());
+                });
+
     }
 
     private void simulateMove() {
@@ -88,7 +118,9 @@ public class SimulationEngine implements IEngine {
 
     private Boolean canReproduct(Animal firstAnimal, Animal secondAnimal) {
         return firstAnimal.getEnergy() >= this.simulationConfig.energyToCopulation()
-                && secondAnimal.getEnergy() >= this.simulationConfig.energyToCopulation();
+                && secondAnimal.getEnergy() >= this.simulationConfig.energyToCopulation()
+                && firstAnimal.getEnergy() - this.simulationConfig.energyToCopulation() > this.simulationConfig.energyNecessary()
+                && secondAnimal.getEnergy() - this.simulationConfig.energyToCopulation() > this.simulationConfig.energyNecessary();
     }
 
     private Animal createNewAnimal(Animal firstAnimal, Animal secondAnimal) {
@@ -98,10 +130,10 @@ public class SimulationEngine implements IEngine {
         Genotype childGenotype = new Genotype(firstAnimal.getGenotype().cutLeftSide(indexOfCut), secondAnimal.getGenotype().cutRightSide(indexOfCut));
         // domyślne ustawienie to pełna predestynacja
 
-        if (!this.simulationConfig.isPredistination()) {
+        if (this.simulationConfig.behaviour().equals(Behavior.ABITOFMADNESS)) {
             childGenotype.applyABitOfMadness();
         }
-        if (!this.simulationConfig.isRandomness()) {
+        if (this.simulationConfig.mutations().equals(Mutations.SLIGHTCORRECT)) {
             childGenotype.applySmallCorrect();
         } else {
             childGenotype.applyFullyRandomness();
@@ -113,6 +145,22 @@ public class SimulationEngine implements IEngine {
     private void decreateParentEnergy(Animal firstParent, Animal secondParent) {
         firstParent.setEnergy(firstParent.getEnergy() - this.simulationConfig.energyToCopulation());
         secondParent.setEnergy(secondParent.getEnergy() - this.simulationConfig.energyToCopulation());
+    }
+
+    private void growNewGrasses() {
+        this.map.generateNewGrasses();
+    }
+
+    private void printChangesForDebug() {
+        Map<Vector2d, Grass> grassMap = this.map.getGrassMap();
+        System.out.println("Wszystkie zwierzata po obecnej iteracji");
+        for(Animal animal : this.animalsList) {
+            System.out.println(animal);
+        }
+        System.out.println("Wszystkie rośliny po obecnej iteracji");
+        for (Map.Entry<Vector2d, Grass> entry : grassMap.entrySet()) {
+            System.out.println(entry);
+        }
     }
 
 }

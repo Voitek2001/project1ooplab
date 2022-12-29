@@ -22,10 +22,5 @@ public abstract class AbstractWorldElement implements IMapElement {
         observers.remove(observer);
     }
 
-    public void positionChanged(Vector2d oldPosition, Vector2d newPosition) {
-        for (IPositionChangeObserver observer : observers) {
-            observer.positionChanged(this, oldPosition, newPosition);
-        }
-    }
 
 }

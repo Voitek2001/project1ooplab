@@ -15,5 +15,5 @@ public interface IPositionChangeObserver {
      * new position of animal
      * change position on map in haspmap which contains all positions as keys
      */
-    void positionChanged(AbstractWorldElement mapElement, Vector2d oldPosition, Vector2d newPosition);
+    void positionChanged(Animal mapElement, Vector2d oldPosition, Vector2d newPosition);
 }

@@ -4,6 +4,9 @@ package agh.ics.oop.gui;
 import agh.ics.oop.*;
 import agh.ics.oop.MapElements.Animal;
 import agh.ics.oop.MapElements.Genotype;
+import agh.ics.oop.MapElements.Grass;
+import agh.ics.oop.Simulation.SimulationConfig;
+import agh.ics.oop.Simulation.SimulationEngine;
 import agh.ics.oop.Simulation.SimulationEngineWithThread;
 import agh.ics.oop.WorldMapComp.AbstractWorldMap;
 import agh.ics.oop.WorldMapComp.AnimalContainer;
@@ -44,30 +47,77 @@ public class App extends Application implements IRenderGridObserver {
     public void init() throws Exception {
         super.init();
         try {
-            GrassField testMap = new GrassField(10);
-            Animal testAnimal = new Animal(testMap, new Vector2d(2, 2), 50);
-            Animal testAnimal2 = new Animal(testMap, new Vector2d(2, 2), 70);
-            Animal testAnimal3 = new Animal(testMap, new Vector2d(2, 2), 100);
-            Animal testAnimal4 = new Animal(testMap, new Vector2d(2, 2), 30);
-            AnimalContainer newcont = new AnimalContainer();
-            newcont.addNewAnimal(testAnimal);
-            newcont.addNewAnimal(testAnimal2);
-            newcont.addNewAnimal(testAnimal3);
-            newcont.addNewAnimal(testAnimal4);
-            Optional<Pair<Animal, Animal>> jd = newcont.getTwoAnimalsWithGreatestEnergy();
-            System.out.println(jd.get().getKey().describePosition());
-            System.out.println(jd.get().getKey().getEnergy());
-            System.out.println(jd.get().getValue().describePosition());
-            System.out.println(jd.get().getValue().getEnergy());
 
-            List<MapDirection> a = new ArrayList<>();
-            a.add(MapDirection.NORTH);
-            a.add(MapDirection.SOUTH);
-            Genotype gen = new Genotype(a);
-            gen.applySmallCorrect();
+            SimulationConfig simulationConfig = new SimulationConfig(
+                    10,
+                    15,
+                    5,
+                    3,
+                    20,
+                    50,
+                    2,
+                    3,
+                    1,
+                    5,
+                    5,
+                    2,
+                    MapType.GLOBE,
+                    AfforestationType.TOXICCORPSES,
+                    Mutations.SLIGHTCORRECT,
+                    Behavior.ABITOFMADNESS
+            );
+
+            GrassField testMap = new GrassField(simulationConfig);
+//            Animal testAnimal = new Animal(testMap, new Vector2d(2, 2), 50);
+//            Animal testAnimal2 = new Animal(testMap, new Vector2d(2, 2), 70);
+//            Animal testAnimal3 = new Animal(testMap, new Vector2d(2, 2), 100);
+//            Animal testAnimal4 = new Animal(testMap, new Vector2d(2, 2), 30);
+//            AnimalContainer newcont = new AnimalContainer();
+//            newcont.addNewAnimal(testAnimal);
+//            newcont.addNewAnimal(testAnimal2);
+//            newcont.addNewAnimal(testAnimal3);
+//            newcont.addNewAnimal(testAnimal4);
+//            Optional<Pair<Animal, Animal>> jd = newcont.getTwoAnimalsWithGreatestEnergy();
+//            System.out.println(jd.get().getKey().describePosition());
+//            System.out.println(jd.get().getKey().getEnergy());
+//            System.out.println(jd.get().getValue().describePosition());
+//            System.out.println(jd.get().getValue().getEnergy());
+//
+//            List<MoveDirection> a = new ArrayList<>();
+//            a.add(MoveDirection.FORWARD);
+//            a.add(MoveDirection.LEFT);
+//            a.add(MoveDirection.FORWARDRIGHT);
+//            a.add(MoveDirection.RIGHT);
+//            a.add(MoveDirection.FORWARD);
+//
+//            Genotype gen = new Genotype(a);
+//            gen.applySmallCorrect();
+//
+//            gen.applyABitOfMadness();
+//
+//            System.out.println(gen.getGenesTravelOrder());
+//            System.out.println(gen.getGenes());
+//            System.out.println("ruchy");
+//            System.out.println(gen.getCurrentMove());
+//            System.out.println(gen.getCurrentMove());
+//            System.out.println(gen.getCurrentMove());
+//            System.out.println(gen.getCurrentMove());
+//            System.out.println(gen.getCurrentMove());
+//            System.out.println(gen.getCurrentMove());
+//            System.out.println(gen.getCurrentMove());
+//            System.out.println(gen.getCurrentMove());
+//            System.out.println(gen.getCurrentMove());
+//            System.out.println(gen.getCurrentMove());
+//            System.out.println(gen.getCurrentMove());
+//            System.out.println("tu");
+            ////////////////////////////////////////////
+            ////////////////////////////////////////////
+            ////////////////////test////////////////////
+//            GrassField testMap2 = new GrassField(simulationConfig);
 
 
-            System.out.println("tu");
+            SimulationEngine se = new SimulationEngine(simulationConfig, 5000);
+            se.run();
             //lab7
             System.out.println("LAB7");
             //test JSON
@@ -76,11 +126,11 @@ public class App extends Application implements IRenderGridObserver {
             this.config = new JSONObject(contents).getJSONObject("ConfigurationFile");
 
 
-            this.worldMap = new GrassField(10);
+            this.worldMap = new GrassField(simulationConfig);
             Vector2d[] positions = { new Vector2d(2,2), new Vector2d(3,4) };
             this.engine = new SimulationEngineWithThread(this.worldMap, positions, 3000);
-            this.engine.addObserver(this);
-            this.grid = new GridPane();
+//            this.engine.addObserver(this);
+//            this.grid = new GridPane();
 
 //            System.out.println(this.worldMap);
 
@@ -99,36 +149,36 @@ public class App extends Application implements IRenderGridObserver {
     public void start(Stage primaryStage) {
 
 
-
-        primaryStage.setOnCloseRequest(e -> {
-            Platform.exit();
-            System.exit(0);
-        });
-        grid.setGridLinesVisible(true);
-        grid.setHgap(0);
-        grid.setVgap(0);
-        Button button = new Button("Run");
-        button.setMinWidth(20);
-        button.setMinHeight(20);
-        VBox root = new VBox();
-        TextField textField = new TextField();
-
-        button.setOnAction(event -> {
-            String[] instructions = textField.getCharacters().toString().split(" ");
-            MoveDirection[] directions  = OptionsParser.parse(instructions);
-            this.engine.setNewMoves(directions);
-            this.threadToRunEngine = new Thread(this.engine);
-            this.threadToRunEngine.start();
-        });
-        root.getChildren().addAll(textField, button);
-        root.getChildren().add(grid);
-
-        renderGrid();
-
-        Scene scene = new Scene(root, this.config.getInt("widthOfScene"), this.config.getInt("heightOfScene"));
-        primaryStage.setTitle("Zwierzak!");
-        primaryStage.setScene(scene);
-        primaryStage.show();
+//
+//        primaryStage.setOnCloseRequest(e -> {
+//            Platform.exit();
+//            System.exit(0);
+//        });
+//        grid.setGridLinesVisible(true);
+//        grid.setHgap(0);
+//        grid.setVgap(0);
+//        Button button = new Button("Run");
+//        button.setMinWidth(20);
+//        button.setMinHeight(20);
+//        VBox root = new VBox();
+//        TextField textField = new TextField();
+//
+//        button.setOnAction(event -> {
+//            String[] instructions = textField.getCharacters().toString().split(" ");
+//            MoveDirection[] directions = OptionsParser.parse(instructions);
+//            this.engine.setNewMoves(directions);
+//            this.threadToRunEngine = new Thread(this.engine);
+//            this.threadToRunEngine.start();
+//        });
+//        root.getChildren().addAll(textField, button);
+//        root.getChildren().add(grid);
+//
+//        renderGrid();
+//
+//        Scene scene = new Scene(root, this.config.getInt("widthOfScene"), this.config.getInt("heightOfScene"));
+//        primaryStage.setTitle("Zwierzak!");
+//        primaryStage.setScene(scene);
+//        primaryStage.show();
 
 
     }

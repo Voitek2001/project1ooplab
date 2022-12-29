@@ -56,7 +56,7 @@ public class SimulationEngineWithThread implements IEngine, Runnable {
             int num_of_operation = this.instructions.length;
             int num_of_valid_animals = this.animalsPos.size();
             for (int i = 0; i < num_of_operation; i++) {
-                this.animalsPos.get(i % num_of_valid_animals).move(this.instructions[i]);
+                this.animalsPos.get(i % num_of_valid_animals).makeMove();
                 this.renderNewGrid();
                 Thread.sleep(this.moveDelay);
             }

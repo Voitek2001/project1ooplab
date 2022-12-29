@@ -2,19 +2,21 @@ package agh.ics.oop.MapElements;
 
 import agh.ics.oop.*;
 import agh.ics.oop.WorldMapComp.AbstractWorldMap;
+import agh.ics.oop.WorldMapComp.AnimalContainer;
 
-import java.util.ArrayList;
-import java.util.Objects;
+import java.util.*;
 
 public class Animal extends AbstractWorldElement {
     private MapDirection orientation = MapDirection.NORTH;
+    private int noOfEatenGrass = 0;
+    private int bornDate;
+    private int deathDate;
     private Vector2d position;
     private final Genotype genotype;
     private final AbstractWorldMap worldMap;
     private int energy;
     private final int id = IDGenerator.currId.getAndIncrement();
     private AnimalStatus status;
-    private int currentIndexOfGen;
     public Animal(AbstractWorldMap map) {
         this(map, new Vector2d(2, 2));
     }
@@ -31,36 +33,43 @@ public class Animal extends AbstractWorldElement {
         this.energy = initEnergy;
         this.status = AnimalStatus.ALIVE;
         this.genotype = genotype;
-        this.currentIndexOfGen = 0;
     }
 
     public MapDirection getOrientation() {
         return orientation;
     }
 
-
     public void makeMove() {
         // if nieco szaleństwa
+        MoveDirection direction = this.genotype.getCurrentMove();
+        Vector2d possiblePosition = this.position.add(MapDirection.getByValue((direction.value + this.orientation.value)%8).get().toUnitVector());
+        Random rand = new Random();
+        int consumedEnergy = this.worldMap.getSimulationConfig().energyNecessary();
+        if (!this.worldMap.isOutOfBound(possiblePosition)) {
+            if (this.worldMap.getSimulationConfig().mapType().equals(MapType.HELLPORTAL)) {
+                possiblePosition = new Vector2d(rand.nextInt(this.worldMap.getSimulationConfig().width() + 1), rand.nextInt(this.worldMap.getSimulationConfig().height() + 1));
+                consumedEnergy = this.worldMap.getSimulationConfig().energyToCopulation();
+            } else if (possiblePosition.x() >= this.worldMap.getSimulationConfig().width() || possiblePosition.x() < 0) {
+                possiblePosition = new Vector2d((possiblePosition.x() + this.worldMap.getSimulationConfig().width()) % this.worldMap.getSimulationConfig().width(), possiblePosition.y());
+            } else {
+                this.reverseOrientation();
+                return;
+            }
+        }
+        this.positionChanged(this.position, possiblePosition);
+        this.position = possiblePosition;
+        this.setEnergy(this.getEnergy() - consumedEnergy);
+        updateStatus();
 
     }
-    public void move(MoveDirection direction) {
-        Vector2d possiblePosition = this.position;
-        switch (direction) {
-            case LEFT -> this.orientation = this.orientation.previous();
-            case RIGHT -> this.orientation = this.orientation.next();
-            case FORWARD -> possiblePosition = this.position.add(this.orientation.toUnitVector());
-            case BACKWARD -> possiblePosition = this.position.add(this.orientation.toUnitVector().opposite());
-        }
-//        System.out.println(worldMap.canMoveTo(possiblePosition));
-        if (worldMap.canMoveTo(possiblePosition)) {
-            this.positionChanged(this.position, possiblePosition);
-            this.position = possiblePosition;
-        }
 
-        // position = position.lowerLeft(4, 4)
-        // position = position.upperRight(0, 0)
+    public void updateStatus() {
+        if (energy < this.worldMap.getSimulationConfig().energyNecessary()) {
+            this.status = AnimalStatus.DEAD;
+            return;
+        }
+        this.status = AnimalStatus.ALIVE;
     }
-
 
     public Vector2d getPosition() {
         return position;
@@ -81,7 +90,7 @@ public class Animal extends AbstractWorldElement {
             case SOUTHEAST -> "v>";
             case SOUTHWEST -> "<v";
             case NORTHWEST -> "<^";
-        };
+        } + this.status + "energy: %d, pos:(%d, %d)".formatted(this.getEnergy(), this.position.x(), this.position.y());
     }
 
     public String getImagePath() {
@@ -128,4 +137,40 @@ public class Animal extends AbstractWorldElement {
     public void setStatus(AnimalStatus newStatus) {
 
     }
+    public void reverseOrientation() {
+        MapDirection.getByValue((this.orientation.value + 4) % 8).ifPresent(val -> this.orientation = val);
+    }
+
+    public void positionChanged(Vector2d oldPosition, Vector2d newPosition) {
+        for (IPositionChangeObserver observer : observers) {
+            observer.positionChanged(this, oldPosition, newPosition);
+        }
+    }
+
+
+    public int getNoOfEatenGrass() {
+        return noOfEatenGrass;
+    }
+
+    public void setNoOfEatenGrass(int noOfEatenGrass) {
+        this.noOfEatenGrass = noOfEatenGrass;
+    }
+
+    public int getBornDate() {
+        return bornDate;
+    }
+
+    public void setBornDate(int bornDate) {
+        this.bornDate = bornDate;
+    }
+
+    public int getDeathDate() {
+        return deathDate;
+    }
+
+    public void setDeathDate(int deathDate) {
+        this.deathDate = deathDate;
+    }
+
+
 }

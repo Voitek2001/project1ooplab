@@ -30,5 +30,12 @@ public class AnimalContainer {
         return Optional.of(new Pair<>(animalContainerIterator.next().animal(), animalContainerIterator.next().animal()));
 
     }
+    public Optional<Animal> getGreatestEnergyAnimal() {
+
+        if (this.AnimalContainerAtCurrentPosition.isEmpty()) {
+            return Optional.empty();
+        }
+        return Optional.of(this.AnimalContainerAtCurrentPosition.last().animal());
+    }
 
 }

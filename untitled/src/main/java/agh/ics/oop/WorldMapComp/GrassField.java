@@ -1,12 +1,10 @@
 package agh.ics.oop.WorldMapComp;
 
-import agh.ics.oop.MapElements.AbstractWorldElement;
 import agh.ics.oop.MapElements.Animal;
 import agh.ics.oop.MapElements.Grass;
-import agh.ics.oop.MapElements.IMapElement;
+import agh.ics.oop.Simulation.SimulationConfig;
 import agh.ics.oop.Vector2d;
-import agh.ics.oop.WorldMapComp.AbstractWorldMap;
-import agh.ics.oop.WorldMapComp.Bounds;
+
 
 import java.util.*;
 
@@ -14,25 +12,22 @@ public class GrassField extends AbstractWorldMap {
 
     private final int n;
 
-    public GrassField(int n) {
-        this.n = n;
+    public GrassField(SimulationConfig simulationConfig) {
+        super(simulationConfig);
+        this.n = simulationConfig.plantsStarted();
         Integer[] randomCoordinates = generateDistRandomNumbers(n, (int) Math.sqrt(10 * n) * (int) Math.sqrt(10 * n));
-        HashMap<Vector2d, IMapElement> elementsOnMap = getElementsOnMap();
         for (int i = 0; i < n; i++) {
             Vector2d pos = new Vector2d(randomCoordinates[i] / (int) Math.sqrt(10 * n), randomCoordinates[i] % (int) Math.sqrt(10 * n));
-            AbstractWorldElement newGrass = new Grass(pos);
-            elementsOnMap.put(pos, newGrass);
-            mapBoundary.addWorldElement(newGrass);
+            Grass newGrass = new Grass(pos);
+            grassMap.put(newGrass.getPosition(), newGrass);
         }
 
     }
 
+
     @Override
     public boolean canMoveTo(Vector2d position) {
-        if (super.isOccupied(position) && getElementsOnMap().get(position) instanceof Grass) {
-            return true;
-        }
-        return !super.isOccupied(position);
+        return false;
     }
 
     @Override
@@ -41,33 +36,13 @@ public class GrassField extends AbstractWorldMap {
 
     }
 
+
+
     @Override
-    public void positionChanged(AbstractWorldElement mapElement, Vector2d oldPosition, Vector2d newPosition) {
-        // zapytać czy zapisać wywołanie getElementsOnMap do zmiennej
-        HashMap<Vector2d, IMapElement> elementsOnMap = getElementsOnMap();
-        elementsOnMap.remove(oldPosition);
-        if (getElementsOnMap().get(newPosition) instanceof Grass) {
-            findNewPositionForGrass(newPosition, (AbstractWorldElement) getElementsOnMap().get(newPosition));
-        }
-        elementsOnMap.put(newPosition, mapElement);
-    }
-
-
     public Bounds getBounds() {
-        Vector2d lowerLeft;
-        Vector2d upperRight;
-
-        if (getElementsOnMap().isEmpty()) {
-            lowerLeft = new Vector2d(Integer.MAX_VALUE, Integer.MAX_VALUE);
-            upperRight = new Vector2d(Integer.MIN_VALUE, Integer.MIN_VALUE);
-        } else {
-            lowerLeft = this.mapBoundary.getLowerLeft();
-            upperRight = this.mapBoundary.getUpperRight();
-        }
-
-        return new Bounds(lowerLeft, upperRight);
-
+        return null;
     }
+
 
     @Override
     public void feedAnimals() {
@@ -98,12 +73,12 @@ public class GrassField extends AbstractWorldMap {
 
     }
 
-    private void findNewPositionForGrass(Vector2d oldPosition, AbstractWorldElement grass) {
+    private void findNewPositionForGrass(Vector2d oldPosition) {
         Optional<Vector2d> newGrassPos = generateNewNotOccupiedPosition(oldPosition);
         newGrassPos.ifPresent(// check if it is even possible to place grass on new place
                 (newPos) -> {
-                    getElementsOnMap().put(newPos, grass);
-                    mapBoundary.positionChanged(grass, oldPosition, newPos);
+                    this.grassMap.remove(oldPosition);
+                    this.grassMap.put(newPos, new Grass(newPos));
                 }
         );
     }

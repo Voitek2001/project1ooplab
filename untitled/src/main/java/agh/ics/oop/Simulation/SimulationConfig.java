@@ -1,6 +1,11 @@
 package agh.ics.oop.Simulation;
 
 
+import agh.ics.oop.AfforestationType;
+import agh.ics.oop.Behavior;
+import agh.ics.oop.MapType;
+import agh.ics.oop.Mutations;
+
 public record SimulationConfig (
         int height,
         int width,
@@ -13,10 +18,11 @@ public record SimulationConfig (
         int minimumMutations,
         int maximumMuattions,
         int lengthGenome,
-        boolean isGlobe,
-        boolean isForestedEquators,
-        boolean isRandomness,
-        boolean isPredistination
+        int everydayPlantCount,
+        MapType mapType,
+        AfforestationType AfforestationType,
+        Mutations mutations,
+        Behavior behaviour
 ) {
 }
 
