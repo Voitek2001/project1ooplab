@@ -7,6 +7,7 @@ import agh.ics.oop.MapElements.Genotype;
 import agh.ics.oop.MapElements.Grass;
 import agh.ics.oop.WorldMapComp.AbstractWorldMap;
 import agh.ics.oop.WorldMapComp.AnimalContainer;
+import agh.ics.oop.WorldMapComp.ElementOfAnimalsContainer;
 import agh.ics.oop.WorldMapComp.GrassField;
 import agh.ics.oop.gui.IRenderGridObserver;
 import javafx.util.Pair;
@@ -44,10 +45,17 @@ public class SimulationEngine implements IEngine {
                 Random rand = new Random();
                 newGen.add(directions[rand.nextInt(directions.length)]);
             }
-            Animal animal = new Animal(map, newPosition, this.simulationConfig.animalStartEnergy(), new Genotype(newGen));
-//            Animal todeleteanimal = new Animal(map, newPosition, this.simulationConfig.animalStartEnergy(), new Genotype(newGen));
-//            map.place(todeleteanimal);
-//            this.animalsList.add(todeleteanimal);
+            Genotype currAnimalGen = new Genotype(newGen);
+//            if (simulationConfig.mutations().equals(Mutations.SLIGHTCORRECT)) {
+//                currAnimalGen.applySmallCorrect();
+//            }
+//            if (simulationConfig.behaviour().equals(Behavior.ABITOFMADNESS)) {
+//                currAnimalGen.applyABitOfMadness();
+//            }
+            Animal animal = new Animal(map, newPosition, this.simulationConfig.animalStartEnergy(), currAnimalGen);
+            Animal todeleteanimal = new Animal(map, newPosition, this.simulationConfig.animalStartEnergy(), new Genotype(newGen));
+            map.place(todeleteanimal);
+            this.animalsList.add(todeleteanimal);
             map.place(animal);
             this.animalsList.add(animal);
         }
@@ -57,6 +65,8 @@ public class SimulationEngine implements IEngine {
     @Override
     public void run() {
         while (true) {
+            printChangesForDebug();
+
             // 1. Usuniecie z mapy wszystkich martwych zwierząt
             removeDeadAnimals();
             // 2. Zrobienie ruchu
@@ -67,28 +77,28 @@ public class SimulationEngine implements IEngine {
             reproductAnimals();
             // 5. Porost nowych roślin
             growNewGrasses();
-
-            printChangesForDebug();
-            try {
-                Thread.sleep(this.moveDelay);
-            }
-            catch (InterruptedException e) {
-                return;
-            }
+//            try {
+//                Thread.sleep(this.moveDelay);
+//            }
+//            catch (InterruptedException e) {
+//                return;
+//            }
         }
     }
 
     private void removeDeadAnimals() {
 //        this.animalsList.forEach(animal -> animal.removeObserver());
-        this.animalsList.removeIf(animal -> Objects.equals(animal.getStatus(), AnimalStatus.DEAD));
         Map<Vector2d, AnimalContainer> animCont = this.map.getAnimalContainers();
         this.animalsList
                 .stream()
                 .filter((animal -> animal.getStatus().equals(AnimalStatus.DEAD)))
                 .forEach((animal) -> {
                     animCont.get(animal.getPosition()).removeAnimal(animal);
-                    this.map.addDeadAtPosition(animal.getPosition());
+                    if (this.simulationConfig.AfforestationType().equals(AfforestationType.TOXICCORPSES)) {
+                        this.map.addDeadAtPosition(animal.getPosition());
+                    }
                 });
+        this.animalsList.removeIf(animal -> Objects.equals(animal.getStatus(), AnimalStatus.DEAD));
 
     }
 
@@ -111,6 +121,8 @@ public class SimulationEngine implements IEngine {
                     // create animal
                     Animal child = createNewAnimal(firstAnimal, secondAnimal);
                     this.map.place(child);
+                    this.animalsList.add(child);
+                    this.map.getAnimalContainers().get(child.getPosition()).addNewAnimal(child);
                 }
             });
         });

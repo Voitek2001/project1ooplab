@@ -47,12 +47,14 @@ public class Animal extends AbstractWorldElement {
         int consumedEnergy = this.worldMap.getSimulationConfig().energyNecessary();
         if (!this.worldMap.isOutOfBound(possiblePosition)) {
             if (this.worldMap.getSimulationConfig().mapType().equals(MapType.HELLPORTAL)) {
-                possiblePosition = new Vector2d(rand.nextInt(this.worldMap.getSimulationConfig().width() + 1), rand.nextInt(this.worldMap.getSimulationConfig().height() + 1));
+                possiblePosition = new Vector2d(rand.nextInt(this.worldMap.getSimulationConfig().width()), rand.nextInt(this.worldMap.getSimulationConfig().height()));
                 consumedEnergy = this.worldMap.getSimulationConfig().energyToCopulation();
             } else if (possiblePosition.x() >= this.worldMap.getSimulationConfig().width() || possiblePosition.x() < 0) {
                 possiblePosition = new Vector2d((possiblePosition.x() + this.worldMap.getSimulationConfig().width()) % this.worldMap.getSimulationConfig().width(), possiblePosition.y());
             } else {
                 this.reverseOrientation();
+                this.setEnergy(this.getEnergy() - consumedEnergy);
+                updateStatus();
                 return;
             }
         }

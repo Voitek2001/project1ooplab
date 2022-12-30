@@ -47,12 +47,21 @@ public class App extends Application implements IRenderGridObserver {
     public void init() throws Exception {
         super.init();
         try {
+            List<MoveDirection> jd = new ArrayList<>();
+            jd.add(MoveDirection.FORWARD);
+            Genotype gen = new Genotype(jd);
+            List<MoveDirection> left = gen.cutLeftSide(0);
+            List<MoveDirection> right = gen.cutRightSide(0);
+            System.out.println("left" + left);
+            System.out.println("right" + right);
+//            System.out.println(new Genotype());
+
 
             SimulationConfig simulationConfig = new SimulationConfig(
                     10,
                     15,
                     5,
-                    3,
+                    13,
                     20,
                     50,
                     2,
@@ -62,7 +71,7 @@ public class App extends Application implements IRenderGridObserver {
                     5,
                     2,
                     MapType.GLOBE,
-                    AfforestationType.TOXICCORPSES,
+                    AfforestationType.FORESTEDEQUATORS,
                     Mutations.SLIGHTCORRECT,
                     Behavior.ABITOFMADNESS
             );

@@ -30,7 +30,7 @@ public class Genotype implements Comparable<Genotype>{
     }
 
     public List<MoveDirection> cutRightSide(int indexOfCut) {
-        return this.genes.subList(indexOfCut, genes.size()-1);
+        return this.genes.subList(indexOfCut, genes.size());
     }
 
     public void applySmallCorrect() {
@@ -59,7 +59,7 @@ public class Genotype implements Comparable<Genotype>{
         for(int i = 0; i < this.genesTravelOrder.size(); i++) {
             int operation = rand.nextInt(10);
             if (operation == 9) {
-                int rand_ind = rand.nextInt(i + 1, this.genesTravelOrder.size());
+                int rand_ind = rand.nextInt(i, this.genesTravelOrder.size());
                 int tmp = this.genesTravelOrder.get(i);
                 this.genesTravelOrder.set(i, this.genesTravelOrder.get(rand_ind));
                 this.genesTravelOrder.set(rand_ind, tmp);

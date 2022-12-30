@@ -44,10 +44,6 @@ public class GrassField extends AbstractWorldMap {
     }
 
 
-    @Override
-    public void feedAnimals() {
-
-    }
 
 //    @Override
 //    public void reproductAnimals() {

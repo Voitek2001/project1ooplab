@@ -82,7 +82,7 @@ public abstract class AbstractWorldMap implements IWorldMap, IPositionChangeObse
     }
 
     public void addDeadAtPosition(Vector2d pos) {
-        int ind = pos.x() + pos.y() * this.simulationConfig.width();
+        int ind = pos.x() + (pos.y() - 1) * (this.simulationConfig.width());
         this.howManyDied.get(ind).increaseCorpsesByOne();
         this.howManyDied
                 .stream()
@@ -144,6 +144,7 @@ public abstract class AbstractWorldMap implements IWorldMap, IPositionChangeObse
         AnimalContainer newPosAnimalContainer = this.animalContainers.get(newPosition);
 
 //        System.out.println(newPosition);
+//        System.out.println(animal.getPosition() + " " + oldPosition +" "+ newPosition );
         oldPosAnimalContainer.removeAnimal(animal);
         newPosAnimalContainer.addNewAnimal(animal);
 
@@ -152,9 +153,27 @@ public abstract class AbstractWorldMap implements IWorldMap, IPositionChangeObse
     public abstract Bounds getBounds();
 
     public void feedAnimals() {
-        List<Vector2d> keysToDel = new LinkedList<>();
+
+//        for (Map.Entry<Vector2d, AnimalContainer> entry : this.animalContainers.entrySet()) {
+//            System.out.println(entry.getKey());
+//            if (!entry.getValue().AnimalContainerAtCurrentPosition.isEmpty()) {
+//                System.out.println(entry.getValue().getGreatestEnergyAnimal().get());
+//            }
+//        }
+
+
+
+            List<Vector2d> keysToDel = new LinkedList<>();
         for (Map.Entry<Vector2d, Grass> entry : this.grassMap.entrySet()) {
-            this.animalContainers.get(entry.getKey()).getGreatestEnergyAnimal().ifPresent((animal -> animal.setEnergy(animal.getEnergy() + this.simulationConfig.plantEnergyProfit())));
+            if (!this.animalContainers.containsKey(entry.getKey())) {
+                continue;
+            }
+//            System.out.println("jd " + entry.getKey());
+            this.animalContainers.get(entry.getKey()).getGreatestEnergyAnimal().ifPresent((animal -> {
+                animal.setEnergy(animal.getEnergy() + this.simulationConfig.plantEnergyProfit());
+                animal.updateStatus();
+//                System.out.println("animalpos " + animal.getPosition());
+            }));
             keysToDel.add(entry.getKey());
         }
         keysToDel.forEach((currKey) -> this.grassMap.remove(currKey));
