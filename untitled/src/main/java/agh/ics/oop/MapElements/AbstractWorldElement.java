@@ -11,7 +11,9 @@ public abstract class AbstractWorldElement implements IMapElement {
     protected Vector2d position;
     protected IWorldMap map;
     protected List<IPositionChangeObserver> observers = new LinkedList<>();
+    protected List<IChangeEnergyObserver> energyObservers = new LinkedList<>();
 
+    protected List<ILifeObserver> lifeObservers = new LinkedList<>();
     public Vector2d getPosition() {
         return position;
     }
@@ -22,5 +24,19 @@ public abstract class AbstractWorldElement implements IMapElement {
         observers.remove(observer);
     }
 
+    public void addEnergyObserver(IChangeEnergyObserver observer) {
+        this.energyObservers.add(observer);
+    }
+    public void removeEnergyObserver(IChangeEnergyObserver observer) {
+        this.energyObservers.remove(observer);
+    }
+
+    public void addLifeObserver(ILifeObserver observer) {
+        this.lifeObservers.add(observer);
+    }
+
+    public void removeLifeObserver(ILifeObserver observer) {
+        this.lifeObservers.remove(observer);
+    }
 
 }

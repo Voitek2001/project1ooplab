@@ -2,10 +2,12 @@ package agh.ics.oop.AnimalTracker;
 
 import agh.ics.oop.MapElements.Animal;
 import agh.ics.oop.MapElements.Genotype;
+import agh.ics.oop.MapElements.IChangeEnergyObserver;
+import agh.ics.oop.MapElements.ILifeObserver;
 
 import java.util.*;
 
-public class AnimalStatisticTracker {
+public class AnimalStatisticTracker implements IChangeEnergyObserver, ILifeObserver {
     private int noOfAnimals = 0;
 
     private int noOfDeadAnimals = 0;
@@ -21,11 +23,15 @@ public class AnimalStatisticTracker {
     private int energyOfALiveAnimals;
     private int howLongLivedDeadAnimals;
 
-    public void animalBore(Animal animal) {
+    @Override
+    public void animalBorn(Animal animal) {
         addGenotypeFrequency(animal.getGenotype());
         this.energyOfALiveAnimals += animal.getEnergy();
         this.noOfAnimals++;
+//        animal.addLifeObserver(this);
     }
+
+    @Override
     public void animalDied(Animal animal) {
 
         this.energyOfALiveAnimals -= animal.getEnergy();
@@ -34,7 +40,9 @@ public class AnimalStatisticTracker {
         this.howLongLivedDeadAnimals += animal.getDeathDate() - animal.getBornDate();
 
     }
-    public void animalEnergyChanged(Animal animal, int oldEnergy, int newEnergy) {
+
+    @Override
+    public void energyChanged(Animal animal, int oldEnergy, int newEnergy) {
         this.energyOfALiveAnimals += (newEnergy - oldEnergy);
     }
 
@@ -80,11 +88,17 @@ public class AnimalStatisticTracker {
         }
         Integer genotypeCount = gentypesHelper.get(genotype);
         HashSet<Genotype> currGenotypeSet = this.genotypesCount.get(genotypeCount);
-        HashSet<Genotype> newGenotypeSet = this.genotypesCount.get(genotypeCount + 1);
+        HashSet<Genotype> newGenotypeSet;
+        if (this.genotypesCount.containsKey(genotypeCount + 1)) {
+            newGenotypeSet = this.genotypesCount.get(genotypeCount + 1);
+        } else {
+            newGenotypeSet = new HashSet<>();
+        }
         currGenotypeSet.remove(genotype);
         newGenotypeSet.add(genotype);
         this.genotypesCount.put(genotypeCount, currGenotypeSet);
         this.genotypesCount.put(genotypeCount + 1, newGenotypeSet);
     }
+
 
 }

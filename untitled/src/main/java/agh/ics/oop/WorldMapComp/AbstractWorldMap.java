@@ -7,7 +7,7 @@ import agh.ics.oop.Simulation.SimulationConfig;
 import java.util.*;
 
 
-public abstract class AbstractWorldMap implements IWorldMap, IPositionChangeObserver {
+public abstract class AbstractWorldMap implements IWorldMap, IPositionChangeObserver, IChangeEnergyObserver, ILifeObserver {
     private final HashMap<Vector2d, AnimalContainer> animalContainers = new HashMap<>();
     private final SimulationConfig simulationConfig;
     protected HashMap<Vector2d, Grass> grassMap = new HashMap<>();
@@ -22,6 +22,23 @@ public abstract class AbstractWorldMap implements IWorldMap, IPositionChangeObse
             }
         }
     }
+
+    public void energyChanged(Animal animal, int oldEnergy, int newEnergy) {
+        AnimalContainer currContainer = this.animalContainers.get(animal.getPosition());
+        currContainer.removeAnimal(animal);
+        currContainer.addNewAnimal(animal);
+    }
+    @Override
+    public void animalBorn(Animal animal) {
+        AnimalContainer currContainer = this.animalContainers.get(animal.getPosition());
+        currContainer.addNewAnimal(animal);
+    }
+    @Override
+    public void animalDied(Animal animal) {
+        AnimalContainer currContainer = this.animalContainers.get(animal.getPosition());
+        currContainer.removeAnimal(animal);
+    }
+
     public Optional<IMapElement> objectAt(Vector2d position) {
         IMapElement possibleMapEl = grassMap.get(position);
         return Optional.ofNullable(possibleMapEl);
@@ -37,6 +54,7 @@ public abstract class AbstractWorldMap implements IWorldMap, IPositionChangeObse
         }
         this.animalContainers.get(elePos).addNewAnimal(animal);
         animal.addObserver(this);
+        animal.addEnergyObserver(this);
     }
 
     private Bounds getForestedEquatorBounds() {

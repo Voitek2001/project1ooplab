@@ -1,13 +1,13 @@
 package agh.ics.oop.Simulation;
 
 import agh.ics.oop.*;
+import agh.ics.oop.AnimalTracker.AnimalStatisticTracker;
 import agh.ics.oop.MapElements.Animal;
 import agh.ics.oop.MapElements.AnimalStatus;
 import agh.ics.oop.MapElements.Genotype;
 import agh.ics.oop.MapElements.Grass;
 import agh.ics.oop.WorldMapComp.AbstractWorldMap;
 import agh.ics.oop.WorldMapComp.AnimalContainer;
-import agh.ics.oop.WorldMapComp.ElementOfAnimalsContainer;
 import agh.ics.oop.WorldMapComp.GrassField;
 import agh.ics.oop.gui.IRenderGridObserver;
 import javafx.util.Pair;
@@ -27,6 +27,7 @@ public class SimulationEngine implements IEngine {
     private final List<IRenderGridObserver> renderGridobservers = new ArrayList<>();
     private final int moveDelay;
     private final SimulationConfig simulationConfig;
+    private final AnimalStatisticTracker animalStatTracker = new AnimalStatisticTracker();
 
     public SimulationEngine(SimulationConfig simulationConfig, int moveDelay) throws IllegalArgumentException {
 
@@ -46,18 +47,24 @@ public class SimulationEngine implements IEngine {
                 newGen.add(directions[rand.nextInt(directions.length)]);
             }
             Genotype currAnimalGen = new Genotype(newGen);
-//            if (simulationConfig.mutations().equals(Mutations.SLIGHTCORRECT)) {
-//                currAnimalGen.applySmallCorrect();
-//            }
-//            if (simulationConfig.behaviour().equals(Behavior.ABITOFMADNESS)) {
-//                currAnimalGen.applyABitOfMadness();
-//            }
+            if (simulationConfig.mutations().equals(Mutations.SLIGHTCORRECT)) {
+                currAnimalGen.applySmallCorrect();
+            }
+            if (simulationConfig.behaviour().equals(Behavior.ABITOFMADNESS)) {
+                currAnimalGen.applyABitOfMadness();
+            }
             Animal animal = new Animal(map, newPosition, this.simulationConfig.animalStartEnergy(), currAnimalGen);
             Animal todeleteanimal = new Animal(map, newPosition, this.simulationConfig.animalStartEnergy(), new Genotype(newGen));
             map.place(todeleteanimal);
             this.animalsList.add(todeleteanimal);
             map.place(animal);
             this.animalsList.add(animal);
+
+            animal.addLifeObserver(this.animalStatTracker);
+            animal.addLifeObserver(this.map);
+            animal.born();
+
+
         }
 
     }
@@ -77,12 +84,12 @@ public class SimulationEngine implements IEngine {
             reproductAnimals();
             // 5. Porost nowych roślin
             growNewGrasses();
-//            try {
-//                Thread.sleep(this.moveDelay);
-//            }
-//            catch (InterruptedException e) {
-//                return;
-//            }
+            try {
+                Thread.sleep(this.moveDelay);
+            }
+            catch (InterruptedException e) {
+                return;
+            }
         }
     }
 
@@ -97,6 +104,7 @@ public class SimulationEngine implements IEngine {
                     if (this.simulationConfig.AfforestationType().equals(AfforestationType.TOXICCORPSES)) {
                         this.map.addDeadAtPosition(animal.getPosition());
                     }
+                    animal.died();
                 });
         this.animalsList.removeIf(animal -> Objects.equals(animal.getStatus(), AnimalStatus.DEAD));
 
@@ -111,7 +119,7 @@ public class SimulationEngine implements IEngine {
 
     }
 
-    public void reproductAnimals() {
+    private void reproductAnimals() {
         this.map.getAnimalContainers().forEach((currPos, currAnimalContainer) -> {
             Optional<Pair<Animal, Animal>> greatestPair = currAnimalContainer.getTwoAnimalsWithGreatestEnergy();
             greatestPair.ifPresent((animalPair) -> {
@@ -120,9 +128,13 @@ public class SimulationEngine implements IEngine {
                 if (canReproduct(firstAnimal, secondAnimal)) {
                     // create animal
                     Animal child = createNewAnimal(firstAnimal, secondAnimal);
+                    decreaseParentEnergy(firstAnimal, secondAnimal);
                     this.map.place(child);
                     this.animalsList.add(child);
-                    this.map.getAnimalContainers().get(child.getPosition()).addNewAnimal(child);
+                    child.addLifeObserver(this.animalStatTracker);
+                    child.addLifeObserver(this.map);
+                    child.born();
+//                    this.map.getAnimalContainers().get(child.getPosition()).addNewAnimal(child);
                 }
             });
         });
@@ -138,7 +150,7 @@ public class SimulationEngine implements IEngine {
     private Animal createNewAnimal(Animal firstAnimal, Animal secondAnimal) {
         float energyRatio = (float) firstAnimal.getEnergy() / (firstAnimal.getEnergy() + secondAnimal.getEnergy());
         int indexOfCut = (int) energyRatio * this.simulationConfig.lengthGenome();
-        decreateParentEnergy(firstAnimal, secondAnimal);
+
         Genotype childGenotype = new Genotype(firstAnimal.getGenotype().cutLeftSide(indexOfCut), secondAnimal.getGenotype().cutRightSide(indexOfCut));
         // domyślne ustawienie to pełna predestynacja
 
@@ -154,9 +166,9 @@ public class SimulationEngine implements IEngine {
         return new Animal(this.map, firstAnimal.getPosition(), 2 * this.simulationConfig.energyToCopulation(), childGenotype);
     }
 
-    private void decreateParentEnergy(Animal firstParent, Animal secondParent) {
-        firstParent.setEnergy(firstParent.getEnergy() - this.simulationConfig.energyToCopulation());
-        secondParent.setEnergy(secondParent.getEnergy() - this.simulationConfig.energyToCopulation());
+    private void decreaseParentEnergy(Animal firstParent, Animal secondParent) {
+        firstParent.energyChanged(firstParent.getEnergy(), firstParent.getEnergy() - this.simulationConfig.energyToCopulation());
+        secondParent.energyChanged(secondParent.getEnergy(), secondParent.getEnergy() - this.simulationConfig.energyToCopulation());
     }
 
     private void growNewGrasses() {

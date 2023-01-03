@@ -60,7 +60,8 @@ public class Animal extends AbstractWorldElement {
         }
         this.positionChanged(this.position, possiblePosition);
         this.position = possiblePosition;
-        this.setEnergy(this.getEnergy() - consumedEnergy);
+//        this.setEnergy(this.getEnergy() - consumedEnergy);
+        this.energyChanged(this.getEnergy(), this.getEnergy() - consumedEnergy);
         updateStatus();
 
     }
@@ -149,6 +150,23 @@ public class Animal extends AbstractWorldElement {
         }
     }
 
+    public void energyChanged(int oldEnergy, int newEnergy) {
+        this.setEnergy(newEnergy);
+        for (IChangeEnergyObserver observer : this.energyObservers) {
+            observer.energyChanged(this, oldEnergy, newEnergy);
+        }
+    }
+
+    public void born() {
+        for (ILifeObserver observer : this.lifeObservers) {
+            observer.animalBorn(this);
+        }
+    }
+    public void died() {
+        for (ILifeObserver observer : this.lifeObservers) {
+            observer.animalDied(this);
+        }
+    }
 
     public int getNoOfEatenGrass() {
         return noOfEatenGrass;
