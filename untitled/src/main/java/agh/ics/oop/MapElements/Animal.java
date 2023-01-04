@@ -1,6 +1,7 @@
 package agh.ics.oop.MapElements;
 
 import agh.ics.oop.*;
+import agh.ics.oop.AnimalTracker.IGrassObserver;
 import agh.ics.oop.WorldMapComp.AbstractWorldMap;
 import agh.ics.oop.WorldMapComp.AnimalContainer;
 
@@ -10,7 +11,10 @@ public class Animal extends AbstractWorldElement {
     private MapDirection orientation = MapDirection.NORTH;
     private int noOfEatenGrass = 0;
     private int bornDate;
+
+    private int age = 0;
     private int deathDate;
+    private int numberOfChildren = 0;
     private Vector2d position;
     private final Genotype genotype;
     private final AbstractWorldMap worldMap;
@@ -40,10 +44,16 @@ public class Animal extends AbstractWorldElement {
     }
 
     public void makeMove() {
-        // if nieco szaleństwa
+        /**
+         * Z genu otrzymujemy kolejny ruch
+         * jeśli nowa pozycja mieści się w granicach mapy to ruch jest po prostu wykonywany
+         * jeśli jest poza granicami to z zależności od wariantu mapy podejmowana jest decyzja o nowym polu
+         * możnaby to rozbić na dwa warianty mapy i uniknąć paru ifów
+         */
         MoveDirection direction = this.genotype.getCurrentMove();
         Vector2d possiblePosition = this.position.add(MapDirection.getByValue((direction.value + this.orientation.value)%8).get().toUnitVector());
         Random rand = new Random();
+        this.age ++;
         int consumedEnergy = this.worldMap.getSimulationConfig().energyNecessary();
         if (!this.worldMap.isOutOfBound(possiblePosition)) {
             if (this.worldMap.getSimulationConfig().mapType().equals(MapType.HELLPORTAL)) {
@@ -53,14 +63,13 @@ public class Animal extends AbstractWorldElement {
                 possiblePosition = new Vector2d((possiblePosition.x() + this.worldMap.getSimulationConfig().width()) % this.worldMap.getSimulationConfig().width(), possiblePosition.y());
             } else {
                 this.reverseOrientation();
-                this.setEnergy(this.getEnergy() - consumedEnergy);
+                this.energyChanged(this.getEnergy(), this.getEnergy() - consumedEnergy);
                 updateStatus();
                 return;
             }
         }
         this.positionChanged(this.position, possiblePosition);
         this.position = possiblePosition;
-//        this.setEnergy(this.getEnergy() - consumedEnergy);
         this.energyChanged(this.getEnergy(), this.getEnergy() - consumedEnergy);
         updateStatus();
 
@@ -69,6 +78,7 @@ public class Animal extends AbstractWorldElement {
     public void updateStatus() {
         if (energy < this.worldMap.getSimulationConfig().energyNecessary()) {
             this.status = AnimalStatus.DEAD;
+            this.setDeathDate(age);
             return;
         }
         this.status = AnimalStatus.ALIVE;
@@ -134,6 +144,10 @@ public class Animal extends AbstractWorldElement {
     public int getId() {
         return this.id;
     }
+
+    public int getAge() {
+        return age;
+    }
     public Genotype getGenotype() {
         return genotype;
     }
@@ -168,12 +182,17 @@ public class Animal extends AbstractWorldElement {
         }
     }
 
+    public void eat() {
+        for(IGrassObserver observer : this.grassObservers) {
+            observer.grassEaten();
+        }
+    }
     public int getNoOfEatenGrass() {
         return noOfEatenGrass;
     }
 
-    public void setNoOfEatenGrass(int noOfEatenGrass) {
-        this.noOfEatenGrass = noOfEatenGrass;
+    public void setNoOfEatenGrass() {
+        this.noOfEatenGrass++;
     }
 
     public int getBornDate() {
@@ -192,5 +211,12 @@ public class Animal extends AbstractWorldElement {
         this.deathDate = deathDate;
     }
 
+    public void addChildren() {
+        this.numberOfChildren++;
+    }
+
+    public int getChildren() {
+        return this.numberOfChildren;
+    }
 
 }

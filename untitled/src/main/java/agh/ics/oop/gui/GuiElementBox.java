@@ -1,5 +1,6 @@
 package agh.ics.oop.gui;
 
+import agh.ics.oop.MapElements.Grass;
 import agh.ics.oop.MapElements.IMapElement;
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;
@@ -10,7 +11,6 @@ import javafx.scene.layout.VBox;
 import java.io.FileNotFoundException;
 
 public class GuiElementBox {
-
     private final VBox guiElement = new VBox(4);
     public GuiElementBox(IMapElement mapElement, String parentPath, int imgViewWidth, int imgViewHeight) {
         try {
@@ -31,7 +31,5 @@ public class GuiElementBox {
     public VBox getGUIElement() {
         return guiElement;
     }
-
-
 
 }

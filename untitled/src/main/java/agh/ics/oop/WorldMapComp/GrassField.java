@@ -1,6 +1,5 @@
 package agh.ics.oop.WorldMapComp;
 
-import agh.ics.oop.MapElements.Animal;
 import agh.ics.oop.MapElements.Grass;
 import agh.ics.oop.Simulation.SimulationConfig;
 import agh.ics.oop.Vector2d;
@@ -24,31 +23,10 @@ public class GrassField extends AbstractWorldMap {
 
     }
 
-
     @Override
     public boolean canMoveTo(Vector2d position) {
         return false;
     }
-
-    @Override
-    public void place(Animal animal) {
-        super.place(animal);
-
-    }
-
-
-
-    @Override
-    public Bounds getBounds() {
-        return null;
-    }
-
-
-
-//    @Override
-//    public void reproductAnimals() {
-//
-//    }
 
     private Integer[] generateDistRandomNumbers(int count, int maxValue) {
         // if count > maxValue doesn't have sense to generate distinct number, raise error or return null
@@ -79,13 +57,7 @@ public class GrassField extends AbstractWorldMap {
         );
     }
 
-//    (Dla zaawansowanych).
-//    Zmodyfikuj implementację tak, żeby po spotkaniu zwierzęcia i trawy, trawa znikała.
-//    Nowe kępki trawy powinny pojawiać się losowo w obszarze z punktu 1, po zjedzeniu trawy przez zwierzę,
-//    przy założeniu, że nowe położenie kępki trawy nie pokrywa się z istniejącą kępką trawy, ani z żadnym zwierzęciem.
-//
-//    Po dłuższym zastanowieniu, nie za bardzo wiem jak mógłbym usunąć atrybut n
-//    i nadal móc realizować losowanie trawy dla powyższego punktu.
+
     private Optional<Vector2d> generateNewNotOccupiedPosition(Vector2d pos) {
         LinkedList<Vector2d> tmpList = new LinkedList<>();
         for (int i = 0; i < (int) Math.sqrt(10 * n); i++) {

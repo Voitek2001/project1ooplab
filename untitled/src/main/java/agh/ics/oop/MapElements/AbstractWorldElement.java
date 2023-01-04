@@ -1,5 +1,6 @@
 package agh.ics.oop.MapElements;
 
+import agh.ics.oop.AnimalTracker.IGrassObserver;
 import agh.ics.oop.WorldMapComp.IWorldMap;
 import agh.ics.oop.Vector2d;
 
@@ -14,6 +15,8 @@ public abstract class AbstractWorldElement implements IMapElement {
     protected List<IChangeEnergyObserver> energyObservers = new LinkedList<>();
 
     protected List<ILifeObserver> lifeObservers = new LinkedList<>();
+    protected List<IGrassObserver> grassObservers = new LinkedList<>();
+
     public Vector2d getPosition() {
         return position;
     }
@@ -38,5 +41,10 @@ public abstract class AbstractWorldElement implements IMapElement {
     public void removeLifeObserver(ILifeObserver observer) {
         this.lifeObservers.remove(observer);
     }
-
+    public void addGrassObserver(IGrassObserver observer) {
+        this.grassObservers.add(observer);
+    }
+    public void removeGrassObserver(IGrassObserver observer) {
+        this.grassObservers.remove(observer);
+    }
 }

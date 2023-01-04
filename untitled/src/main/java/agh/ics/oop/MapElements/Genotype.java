@@ -1,5 +1,6 @@
 package agh.ics.oop.MapElements;
 
+import agh.ics.oop.MapDirection;
 import agh.ics.oop.MoveDirection;
 import com.google.common.collect.Iterables;
 
@@ -10,6 +11,16 @@ import java.util.stream.Stream;
 
 public class Genotype implements Comparable<Genotype>{
 
+    /**
+     * Genotyp zawiera kierunki ruchów jako liste
+     * natomiast kolejność w jakiej przechodzimy tą liste przechowywana jest w genesTravelOrder
+     * a więc jeśli chcemy przechodzić gen w pełnej predyscynacji kolejność przechodzenia to po prostu lista od 1..n
+     * natomiast jeśli zaaplikować trochę szaleństwa, to gen sam w sobie sie nie zmienia natomiast kolejność 1..n
+     * listy genesTravelOrder zostaje pomieszana co 10 elementów aby tylko 20% genów było w innej kolejności
+     * (przeniesienie jednego indeksu zmienia kolejność dwóch dlatego zmieniamy co 10 element a nie 5)
+     * natomiast lekka korekta używa przesuwa w losowym kierunku w góre lub w dół movedirection
+     * natomiast pełna losowość to po prostu losowe nowe movedirection
+     */
     private List<MoveDirection> genes;
     private final List<Integer> genesTravelOrder;
     private Iterator<Integer> genIterator;
@@ -69,7 +80,16 @@ public class Genotype implements Comparable<Genotype>{
     }
 
     public void applyFullyRandomness() {
+        Random rand = new Random();
+
+        List<MoveDirection> newGenes = new ArrayList<>();
+        for (int i = 0; i < this.genes.size(); i++) {
+            Optional<MoveDirection> newValue = MoveDirection.getByValue(rand.nextInt(8));
+            newValue.ifPresent(newGenes::add);
+        }
+        this.genes = newGenes;
     }
+
     public List<Integer> getGenesTravelOrder() {
         return this.genesTravelOrder;
     }

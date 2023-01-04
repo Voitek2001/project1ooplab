@@ -9,9 +9,14 @@ import javafx.util.Pair;
 
 
 public class AnimalContainer {
-
+    /**
+     * Kontener który znajduje się w każdym polu, trzyma w posortowany sposób względem energii zwierzęta
+     */
     NavigableSet<ElementOfAnimalsContainer> AnimalContainerAtCurrentPosition = new TreeSet<>(new AnimalsEnergyComparator());
 
+    public NavigableSet<ElementOfAnimalsContainer> getAnimalContainerAtCurrentPosition() {
+        return this.AnimalContainerAtCurrentPosition;
+    }
     public void addNewAnimal(Animal animal) {
         ElementOfAnimalsContainer newSetElement = new ElementOfAnimalsContainer(animal.getEnergy(), animal);
         this.AnimalContainerAtCurrentPosition.add(newSetElement);

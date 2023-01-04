@@ -1,195 +1,67 @@
 package agh.ics.oop.gui;
-
-
 import agh.ics.oop.*;
 import agh.ics.oop.MapElements.Animal;
-import agh.ics.oop.MapElements.Genotype;
 import agh.ics.oop.MapElements.Grass;
-import agh.ics.oop.Simulation.SimulationConfig;
-import agh.ics.oop.Simulation.SimulationEngine;
-import agh.ics.oop.Simulation.SimulationEngineWithThread;
+import agh.ics.oop.Simulation.*;
 import agh.ics.oop.WorldMapComp.AbstractWorldMap;
 import agh.ics.oop.WorldMapComp.AnimalContainer;
-import agh.ics.oop.WorldMapComp.Bounds;
-import agh.ics.oop.WorldMapComp.GrassField;
 import javafx.application.Application;
 import javafx.application.Platform;
+import javafx.collections.FXCollections;
+import javafx.event.EventHandler;
 import javafx.geometry.HPos;
+import javafx.geometry.Insets;
 import javafx.scene.Scene;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.control.TextField;
-import javafx.scene.layout.ColumnConstraints;
-import javafx.scene.layout.GridPane;
-import javafx.scene.layout.RowConstraints;
-import javafx.scene.layout.VBox;
+import javafx.scene.control.*;
+import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.*;
+import javafx.scene.text.Text;
 import javafx.stage.Stage;
-
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
-import javafx.util.Pair;
 import org.json.JSONObject;
 
-public class App extends Application implements IRenderGridObserver {
-
+public class App extends Application implements IRenderGridObserver{
+    Stage stag;
+    Stage primaryStage;
     private GridPane grid;
     private AbstractWorldMap worldMap;
     private JSONObject config;
-    private SimulationEngineWithThread engine;
+    private SimulationEngine engine;
     private Thread threadToRunEngine;
+    boolean paused = false;
+    private int day;
+    private  HashMap<Vector2d, AnimalContainer> animalContainer;
+    private HashMap<Vector2d, Grass> grassMap;
+    private List<Animal> animalList;
 
+    SimulationConfig simulationConfig;
+    ChoiceBox mapVariant = new ChoiceBox(FXCollections.observableArrayList("Globe", "Magic Portal"));
+    ChoiceBox growthVariant = new ChoiceBox(FXCollections.observableArrayList("Forested equators", "Toxic corpses"));
+    ChoiceBox mutationVariant = new ChoiceBox(FXCollections.observableArrayList("Full randomness", "Slight correction"));
+    ChoiceBox madnessVariant = new ChoiceBox(FXCollections.observableArrayList("Full predestination", "Madness"));
+
+    int sumAge = 0;
+    int death = 0;
+    int avg = 0;
     @Override
-    public void init() throws Exception {
-        super.init();
-        try {
-            List<MoveDirection> jd = new ArrayList<>();
-            jd.add(MoveDirection.FORWARD);
-            Genotype gen = new Genotype(jd);
-            List<MoveDirection> left = gen.cutLeftSide(0);
-            List<MoveDirection> right = gen.cutRightSide(0);
-            System.out.println("left" + left);
-            System.out.println("right" + right);
-//            System.out.println(new Genotype());
-
-
-            SimulationConfig simulationConfig = new SimulationConfig(
-                    10,
-                    15,
-                    5,
-                    13,
-                    20,
-                    50,
-                    2,
-                    3,
-                    1,
-                    5,
-                    5,
-                    2,
-                    MapType.GLOBE,
-                    AfforestationType.FORESTEDEQUATORS,
-                    Mutations.SLIGHTCORRECT,
-                    Behavior.ABITOFMADNESS
-            );
-
-            GrassField testMap = new GrassField(simulationConfig);
-//            Animal testAnimal = new Animal(testMap, new Vector2d(2, 2), 50);
-//            Animal testAnimal2 = new Animal(testMap, new Vector2d(2, 2), 70);
-//            Animal testAnimal3 = new Animal(testMap, new Vector2d(2, 2), 100);
-//            Animal testAnimal4 = new Animal(testMap, new Vector2d(2, 2), 30);
-//            AnimalContainer newcont = new AnimalContainer();
-//            newcont.addNewAnimal(testAnimal);
-//            newcont.addNewAnimal(testAnimal2);
-//            newcont.addNewAnimal(testAnimal3);
-//            newcont.addNewAnimal(testAnimal4);
-//            Optional<Pair<Animal, Animal>> jd = newcont.getTwoAnimalsWithGreatestEnergy();
-//            System.out.println(jd.get().getKey().describePosition());
-//            System.out.println(jd.get().getKey().getEnergy());
-//            System.out.println(jd.get().getValue().describePosition());
-//            System.out.println(jd.get().getValue().getEnergy());
-//
-//            List<MoveDirection> a = new ArrayList<>();
-//            a.add(MoveDirection.FORWARD);
-//            a.add(MoveDirection.LEFT);
-//            a.add(MoveDirection.FORWARDRIGHT);
-//            a.add(MoveDirection.RIGHT);
-//            a.add(MoveDirection.FORWARD);
-//
-//            Genotype gen = new Genotype(a);
-//            gen.applySmallCorrect();
-//
-//            gen.applyABitOfMadness();
-//
-//            System.out.println(gen.getGenesTravelOrder());
-//            System.out.println(gen.getGenes());
-//            System.out.println("ruchy");
-//            System.out.println(gen.getCurrentMove());
-//            System.out.println(gen.getCurrentMove());
-//            System.out.println(gen.getCurrentMove());
-//            System.out.println(gen.getCurrentMove());
-//            System.out.println(gen.getCurrentMove());
-//            System.out.println(gen.getCurrentMove());
-//            System.out.println(gen.getCurrentMove());
-//            System.out.println(gen.getCurrentMove());
-//            System.out.println(gen.getCurrentMove());
-//            System.out.println(gen.getCurrentMove());
-//            System.out.println(gen.getCurrentMove());
-//            System.out.println("tu");
-            ////////////////////////////////////////////
-            ////////////////////////////////////////////
-            ////////////////////test////////////////////
-//            GrassField testMap2 = new GrassField(simulationConfig);
-
-
-            SimulationEngine se = new SimulationEngine(simulationConfig, 5000);
-            se.run();
-            //lab7
-            System.out.println("LAB7");
-            //test JSON
-            String pathToConfig = "src/main/java/agh/ics/oop/config.json";
-            String contents = new String((Files.readAllBytes(Paths.get(pathToConfig))));
-            this.config = new JSONObject(contents).getJSONObject("ConfigurationFile");
-
-
-            this.worldMap = new GrassField(simulationConfig);
-            Vector2d[] positions = { new Vector2d(2,2), new Vector2d(3,4) };
-            this.engine = new SimulationEngineWithThread(this.worldMap, positions, 3000);
-//            this.engine.addObserver(this);
-//            this.grid = new GridPane();
-
-//            System.out.println(this.worldMap);
-
-
-//            JSONObject configFile = o.getJSONObject("ConfigurationFile");
-//            this.config = o.getJSONObject("ConfigurationFile");
-            System.out.println(this.config.getString("resourcesPath"));
-
-        }
-        catch (IllegalArgumentException | IOException ex) {
-            ex.printStackTrace(System.out);
-        }
-    }
-
-    @Override
-    public void start(Stage primaryStage) {
-
-
-//
-//        primaryStage.setOnCloseRequest(e -> {
-//            Platform.exit();
-//            System.exit(0);
-//        });
-//        grid.setGridLinesVisible(true);
-//        grid.setHgap(0);
-//        grid.setVgap(0);
-//        Button button = new Button("Run");
-//        button.setMinWidth(20);
-//        button.setMinHeight(20);
-//        VBox root = new VBox();
-//        TextField textField = new TextField();
-//
-//        button.setOnAction(event -> {
-//            String[] instructions = textField.getCharacters().toString().split(" ");
-//            MoveDirection[] directions = OptionsParser.parse(instructions);
-//            this.engine.setNewMoves(directions);
-//            this.threadToRunEngine = new Thread(this.engine);
-//            this.threadToRunEngine.start();
-//        });
-//        root.getChildren().addAll(textField, button);
-//        root.getChildren().add(grid);
-//
-//        renderGrid();
-//
-//        Scene scene = new Scene(root, this.config.getInt("widthOfScene"), this.config.getInt("heightOfScene"));
-//        primaryStage.setTitle("Zwierzak!");
-//        primaryStage.setScene(scene);
-//        primaryStage.show();
-
-
+    public void start(Stage primaryStage) throws IOException {
+        grid = new GridPane();
+        this.primaryStage = primaryStage;
+        Scene configscene = menumap();
+        String pathToConfig = "src/main/java/agh/ics/oop/config.json";
+        String contents = new String((Files.readAllBytes(Paths.get(pathToConfig))));
+        this.config = new JSONObject(contents).getJSONObject("ConfigurationFile");
+        simulationConfig = simulationParameter();
+        this.primaryStage.setScene(configscene);
+        this.primaryStage.show();
+        primaryStage.setOnCloseRequest(e -> {
+            Platform.exit();
+            System.exit(0);
+        });
     }
 
     private int calcSizeOfBoxes(int lowerLeft, int upperRight, int lengthOfScene) {
@@ -197,17 +69,42 @@ public class App extends Application implements IRenderGridObserver {
         return lengthOfScene / howManyBoxes;
 
     }
-    void renderGrid() {
+
+    private void renderGrid() {
+        grid = new GridPane();
+        int height = 500;
+        int width = 900;
+        EventHandler<MouseEvent> eventHandler = event -> {
+            double x = event.getX();
+            double y = event.getY();
+            double cellWidth =  0.6 * width / (simulationConfig.width() + 1);
+            double cellHeight = 0.85 * (double) height / (simulationConfig.height() +1);
+            int row = simulationConfig.height() +1 - (int) (y / cellHeight);
+            int column = (int) (x / cellWidth) - 1;
+            Vector2d vec = new Vector2d(column, row);
+            System.out.println("KLIK" + row +"  " +column);
+            StatsAnimal stat = new StatsAnimal(vec, animalContainer);
+            if (paused) {
+                try {
+                   stat.start(new Stage());
+                } catch (Exception e) {
+                    throw new RuntimeException(e);
+                }
+            }
+        };
+        grid.setOnMouseClicked(eventHandler);
+        Pane leftPane = new Pane();
+        VBox rightPane = rightPanelScene();
+        SplitPane splitPane = new SplitPane();
+        splitPane.getItems().addAll(leftPane, rightPane);
+        splitPane.setDividerPositions(0.7);
         this.grid.setGridLinesVisible(true);
         this.grid.setHgap(0);
         this.grid.setVgap(0);
-        Bounds bounds = this.worldMap.getBounds();
-        int height = this.config.getInt("heightOfScene") - 2 * this.config.getInt("heightOfButton");
-        int width = this.config.getInt("widthOfScene");
-        Vector2d lowerLeft = bounds.lowerLeft();
-        Vector2d upperRight = bounds.upperRight();
+        Vector2d lowerLeft = new Vector2d(0, 0);
+        Vector2d upperRight = new Vector2d(simulationConfig.width(), simulationConfig.height());
         int verticalSize = calcSizeOfBoxes(lowerLeft.y(), upperRight.y(), height);
-        int horizontalSize = calcSizeOfBoxes(lowerLeft.x(), upperRight.x(), width);
+        int horizontalSize = calcSizeOfBoxes(lowerLeft.x(), upperRight.x(), (int) (width * 0.7));
         int lowerLeftX = lowerLeft.x();
         int lowerLeftY = lowerLeft.y();
         int upperRightX = upperRight.x();
@@ -229,33 +126,191 @@ public class App extends Application implements IRenderGridObserver {
             grid.getColumnConstraints().add(new ColumnConstraints(horizontalSize));
             GridPane.setHalignment(label, HPos.CENTER);
         }
+        for (int x = lowerLeftX; x <= upperRightX; x++) {
+            for (int y = lowerLeftY; y <= upperRightY; y++) {
+                Vector2d position = new Vector2d(x, y);
+                if (!animalContainer.containsKey(position)) {
+                    continue;
+                }
+                AnimalContainer container = animalContainer.get(position);
+                Optional<Animal> greatestEnergyAnimal = container.getGreatestEnergyAnimal();
+                if (greatestEnergyAnimal.isPresent()) {
+                    Animal animal = greatestEnergyAnimal.get();
+                    GuiAnimalBox animalBox = new GuiAnimalBox(animal,this.config.getString("resourcesPath"));
+                    VBox box = animalBox.getBox();
+                    VBox.setMargin(box, new Insets(0, 0, 0, 0));
+                    grid.add(box, position.x() - lowerLeftX + 1,
+                            upperRightY - position.y() + 1, 1, 1);
+                }
+            }
+        }
 
         for (int x = lowerLeftX; x <= upperRightX; x++) {
             for (int y = lowerLeftY; y <= upperRightY; y++) {
                 Vector2d position = new Vector2d(x, y);
-                int finalX = x;
-                int finalY = y;
                 worldMap.objectAt(position).ifPresent(
-                            (value) -> {
-                                GuiElementBox guiElementBox = new GuiElementBox(value, this.config.getString("resourcesPath"), 20, 20);
-                                VBox guiElement = guiElementBox.getGUIElement();
-                                GridPane.setHalignment(guiElement, HPos.CENTER);
-                                grid.add(guiElement, finalX - lowerLeftX + 1, upperRightY - finalY + 1, 1, 1);
-//                                Label label = new Label(value.toString());
-//                                grid.add(label, finalX - lowerLeftX + 1, upperRightY - finalY + 1, 1, 1);
-                            }
-                    );
+                        (value) -> {
+                            GuiElementBox guiElementBox = new GuiElementBox(value, this.config.getString("resourcesPath"), 20, 20);
+                            VBox guiElement = guiElementBox.getGUIElement();
+                            GridPane.setHalignment(guiElement, HPos.CENTER);
+                            if (!value.describePosition().equals("Grass")){VBox container = new VBox();
+                                container.getChildren().addAll(guiElement);
+                                grid.add(container,  position.x()- lowerLeftX + 1, upperRightY - position.y() + 1, 1, 1);}
+                            else {grid.add(guiElement, position.x() - lowerLeftX + 1, upperRightY - position.y() + 1, 1, 1);
 
-                }
+                            }
+                        }
+                );
             }
         }
-        @Override
-        public void renderNewGrid() {
-            Platform.runLater(() -> {
-                grid.getChildren().retainAll(grid.getChildren().get(0));
-                this.renderGrid();
-            });
-        }
+        leftPane.getChildren().add(grid);
+        System.out.println(day);
+        stag.setOnCloseRequest(e -> {
+            this.threadToRunEngine.suspend();
+            stag.close();
+        });
+        Scene simScene = new Scene(splitPane,width,height);
+        stag.setTitle("Simulation");
+        stag.setScene(simScene);
+        stag.show();
 
     }
+    @Override
+    public void renderNewGrid() {
+        Platform.runLater(() -> {
+            grid.getChildren().retainAll(grid.getChildren().get(0));
+            renderGrid();
+        });
+    }
+    private Scene menumap() {
+        Button button = new Button("Start Simulation");
+        Text text1 = new Text("Map variant");
+        Text text2 = new Text("Growth variant");
+        Text text3 = new Text("Mutation variant");
+        Text text4 = new Text("Behavior variant");
+        mapVariant.setValue(mapVariant.getItems().get(0));
+        growthVariant.setValue(growthVariant.getItems().get(0));
+        mutationVariant.setValue(mutationVariant.getItems().get(0));
+        madnessVariant.setValue(madnessVariant.getItems().get(0));
+        GridPane grid1 = new GridPane();
+        grid1.addRow(0, text1);
+        grid1.addRow(1, mapVariant);
+        grid1.addRow(2, text2);
+        grid1.addRow(3, growthVariant);
+        grid1.addRow(4, text3);
+        grid1.addRow(5, mutationVariant);
+        grid1.addRow(6, text4);
+        grid1.addRow(7, madnessVariant);
+        grid1.addRow(8, button);
+        text1.setStyle("-fx-font-weight: bold");
+        text2.setStyle("-fx-font-weight: bold");
+        text3.setStyle("-fx-font-weight: bold");
+        text4.setStyle("-fx-font-weight: bold");
+        button.setOnAction(event -> {
+            stag = new Stage();
+            this.engine = new SimulationEngine(simulationConfig, 1000);
+            this.engine.addObserver(this);
+            this.threadToRunEngine = new Thread(engine);
+            this.worldMap = this.engine.getMap();
+            this.paused = false;
+            day  = this.engine.getDays();
+            animalList = this.engine.getAnimalsList();
+            animalContainer = this.worldMap.getAnimalContainers();
+            grassMap = this.worldMap.getGrassMap();
+            renderGrid();
+            threadToRunEngine.start();
+        });
+        return new Scene(grid1, 300, 300);
+    }
 
+    public SimulationConfig simulationParameter() {
+        MapType mapType;
+        AfforestationType afforestationType;
+        Mutations mutations;
+        Behavior behavior;
+        if (mapVariant.getSelectionModel().getSelectedIndex() == 0) {
+            mapType = MapType.GLOBE;
+        } else {
+            mapType = MapType.HELLPORTAL;
+        }
+        if (growthVariant.getSelectionModel().getSelectedIndex() == 0) {
+            afforestationType = AfforestationType.FORESTEDEQUATORS;
+        } else {
+            afforestationType = AfforestationType.TOXICCORPSES;
+        }
+        if (mutationVariant.getSelectionModel().getSelectedIndex() == 0) {
+            mutations = Mutations.TOTALYRANDOM;
+        } else {
+            mutations = Mutations.SLIGHTCORRECT;
+        }
+        if (madnessVariant.getSelectionModel().getSelectedIndex() == 0) {
+            behavior = Behavior.TOTALPREDESTINATION;
+        } else {
+            behavior = Behavior.ABITOFMADNESS;
+        }
+        return new SimulationConfig(
+                this.config.getInt("height"),
+                this.config.getInt("width"),
+                this.config.getInt("plantsStarted"),
+                this.config.getInt("animalStarted"),
+                this.config.getInt("plantEnergyProfit"),
+                this.config.getInt("animalStartEnergy"),
+                this.config.getInt("energyNecessary"),
+                this.config.getInt("energyToCopulation"),
+                this.config.getInt("minimumMutations"),
+                this.config.getInt("maximumMutations"),
+                this.config.getInt("lengthGenome"),
+                this.config.getInt("everydayPlantCount"),
+                mapType,
+                afforestationType,
+                mutations,
+                behavior
+        );
+    }
+
+    public VBox rightPanelScene(){
+        Button button = new Button("Pause");
+        Button buttonContinue = new Button("Continue");
+
+        button.setOnAction(event -> {
+            if (!paused) {
+                paused = true;
+                this.threadToRunEngine.suspend();
+                renderGrid();
+            }
+        });
+        buttonContinue.setOnAction(event -> {
+            paused = false;
+            threadToRunEngine.resume();
+        });
+        StatsMap statsMap = new StatsMap(simulationConfig, animalList,
+                grassMap, animalContainer);
+        MoveDirection mostGen = statsMap.mostGenom();
+        statsMap.meanAge();
+        sumAge += statsMap.getSumAge();
+        death += statsMap.getDeathAnimal();
+        if (death != 0){
+            avg = sumAge/death;
+        }
+        Text textAnimalNumber = new Text("Animals: " +  animalList.size());
+        Text textPlantsNumber = new Text("Plants: " + grassMap.size());
+        Text textMeanEnergy = new Text("Mean Energy: " + statsMap.meanEnergy());
+        Text textMostGenome = new Text("Most Genome: " + mostGen.value);
+        Text textFreeField = new Text("Free field: " + statsMap.freeField());
+        Text text10 = new Text("Mean life (day): " + avg);
+        if (paused) {
+            List<Vector2d> colourVector = statsMap.colorMostGenom(mostGen);
+            for (Vector2d vector : colourVector) {
+                Pane container = new Pane();
+                container.setStyle("-fx-background-color: rgba(255, 200, 200, 0.8);");
+                grid.add(container, vector.x() + 1,
+                        simulationConfig.height() - vector.y() + 1, 1, 1);
+            }
+        }
+        VBox rightPane = new VBox();
+        rightPane.getChildren().addAll(button,buttonContinue, textAnimalNumber, textPlantsNumber,
+                textMeanEnergy, textMostGenome, textFreeField, text10);
+        return rightPane;
+    }
+
+}

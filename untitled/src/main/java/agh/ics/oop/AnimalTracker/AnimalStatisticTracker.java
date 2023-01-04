@@ -7,9 +7,8 @@ import agh.ics.oop.MapElements.ILifeObserver;
 
 import java.util.*;
 
-public class AnimalStatisticTracker implements IChangeEnergyObserver, ILifeObserver {
+public class AnimalStatisticTracker implements IChangeEnergyObserver, ILifeObserver, IGrassObserver {
     private int noOfAnimals = 0;
-
     private int noOfDeadAnimals = 0;
     private int noOfGrass = 0;
 
@@ -23,6 +22,10 @@ public class AnimalStatisticTracker implements IChangeEnergyObserver, ILifeObser
     private int energyOfALiveAnimals;
     private int howLongLivedDeadAnimals;
 
+    /**
+     * Funkcje animalBorn i animalDied implementują interface ILifeObserver
+     * przy narodzeniu, jak i śmierci zwierzęta aktualizowane są statystki symulacji
+     */
     @Override
     public void animalBorn(Animal animal) {
         addGenotypeFrequency(animal.getGenotype());
@@ -41,6 +44,10 @@ public class AnimalStatisticTracker implements IChangeEnergyObserver, ILifeObser
 
     }
 
+    /**
+     * energyChanged implementuje inferface IEnergyChanged
+     * przelicza statystyki zmiany energi
+     */
     @Override
     public void energyChanged(Animal animal, int oldEnergy, int newEnergy) {
         this.energyOfALiveAnimals += (newEnergy - oldEnergy);
@@ -78,6 +85,20 @@ public class AnimalStatisticTracker implements IChangeEnergyObserver, ILifeObser
         this.noOfEmptyCells = noOfEmptyCells;
     }
 
+    /**
+     * Funkcja wykorzystuje dwa zbiory. Pierwszy z nich to sortedMap.
+     * SortedMap - trzyma posortowane klucze które mapowane są na HashSet który zawiera
+     * Genomy które występują tyle razy ile wynosi wartość klucza
+     * Przykład:
+     *      2: Genotype1, Genotype2
+     *      3: Genotype3, Genotype4, Genotype5
+     *      Powyższy SortedMap informuje nas że Genotype1 posiadają/posiadały 2 zwierzęta
+     *      Genotyp2 posiadają/posiadały 2 zwierzęta
+     *      Natomiast Genotyp3, Genotype4, Genotype5 posiadają/posiadały po 3 zwierzęta
+     * Natomiast gentypesHelper mapuje Genotypy na liczbe ile razy występują na mapie
+     * pomaga to w czasie stały aktualizować SortedMap
+     * @param genotype - obecny genotyp do dodania
+     */
     private void addGenotypeFrequency(Genotype genotype) {
         if (!gentypesHelper.containsKey(genotype)) {
             gentypesHelper.put(genotype, 1);

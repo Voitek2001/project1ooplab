@@ -10,7 +10,7 @@ import agh.ics.oop.gui.IRenderGridObserver;
 import java.util.ArrayList;
 import java.util.LinkedList;
 
-public class SimulationEngineWithThread implements IEngine, Runnable {
+public class SimulationEngineWithThread{
     private final int moveDelay;
     private MoveDirection[] instructions;
     private final ArrayList<Animal> animalsPos = new ArrayList<>();
@@ -31,13 +31,15 @@ public class SimulationEngineWithThread implements IEngine, Runnable {
     }
 
     // zwierze zmieniło pozycje powiadom o tym wszystkich obserwatorów silnika
-
+/*
     void renderNewGrid() {
         for (IRenderGridObserver observer : this.threadEngineObservers) {
             observer.renderNewGrid();
         }
     }
 
+
+ */
     public void addObserver(IRenderGridObserver observer) {
         this.threadEngineObservers.add(observer);
     }
@@ -49,7 +51,7 @@ public class SimulationEngineWithThread implements IEngine, Runnable {
     public void setNewMoves(MoveDirection[] moves) {
         this.instructions = moves;
     }
-
+/*
     @Override
     public void run() {
         try {
@@ -64,4 +66,6 @@ public class SimulationEngineWithThread implements IEngine, Runnable {
             throw new RuntimeException(e);
         }
     }
+
+ */
 }

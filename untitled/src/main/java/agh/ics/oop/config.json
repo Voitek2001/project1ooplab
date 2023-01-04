@@ -3,9 +3,18 @@
     {
       "resourcesPath" : "src/main/java/agh/ics/oop/resources",
       "absoluteResourcesPath" : "C:/Users/Wojtek/IdeaProjects/oolab/ooplab/lab8/src/main/java/agh/ics/oop/resources",
-      "widthOfScene" : 600,
-      "heightOfScene" : 600,
-      "heightOfButton" : 30,
-      "BoundForGenotypeMutation" : 1
+      "BoundForGenotypeMutation" : 1,
+      "height" : 5,
+      "width" : 5,
+      "plantsStarted" :  30,
+      "animalStarted" :  15,
+      "plantEnergyProfit" :  24,
+      "animalStartEnergy" :  15,
+      "energyNecessary" :  2,
+      "energyToCopulation" :  3,
+      "minimumMutations" :  1,
+      "maximumMutations" :  5,
+      "lengthGenome" : 8,
+      "everydayPlantCount" : 4
     }
 }
