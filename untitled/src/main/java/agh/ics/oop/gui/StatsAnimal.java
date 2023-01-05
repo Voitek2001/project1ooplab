@@ -61,7 +61,6 @@ public class StatsAnimal extends Application {
         gridPane.addRow(7, text7);
     }
 
-
     public StringBuilder geneticCode(List<MoveDirection> code){
         StringBuilder genCode = new StringBuilder("[ ");
         for (MoveDirection gen: code){

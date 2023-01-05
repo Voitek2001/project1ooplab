@@ -1,5 +1,6 @@
-package agh.ics.oop.gui;
+package agh.ics.oop.gui;qw
 import agh.ics.oop.*;
+import agh.ics.oop.AnimalTracker.AnimalStatisticTracker;
 import agh.ics.oop.MapElements.Animal;
 import agh.ics.oop.MapElements.Grass;
 import agh.ics.oop.Simulation.*;
@@ -37,16 +38,16 @@ public class App extends Application implements IRenderGridObserver{
     private  HashMap<Vector2d, AnimalContainer> animalContainer;
     private HashMap<Vector2d, Grass> grassMap;
     private List<Animal> animalList;
-
-    SimulationConfig simulationConfig;
+    private SimulationConfig simulationConfig;
     ChoiceBox mapVariant = new ChoiceBox(FXCollections.observableArrayList("Globe", "Magic Portal"));
     ChoiceBox growthVariant = new ChoiceBox(FXCollections.observableArrayList("Forested equators", "Toxic corpses"));
     ChoiceBox mutationVariant = new ChoiceBox(FXCollections.observableArrayList("Full randomness", "Slight correction"));
     ChoiceBox madnessVariant = new ChoiceBox(FXCollections.observableArrayList("Full predestination", "Madness"));
-
-    int sumAge = 0;
-    int death = 0;
-    int avg = 0;
+    private ArrayList<String> statsList = new ArrayList<>();
+    private int sumAge = 0;
+    private int death = 0;
+    private int avg = 0;
+    private AnimalStatisticTracker animalStats;
     @Override
     public void start(Stage primaryStage) throws IOException {
         grid = new GridPane();
@@ -62,6 +63,7 @@ public class App extends Application implements IRenderGridObserver{
             Platform.exit();
             System.exit(0);
         });
+
     }
 
     private int calcSizeOfBoxes(int lowerLeft, int upperRight, int lengthOfScene) {
@@ -82,7 +84,6 @@ public class App extends Application implements IRenderGridObserver{
             int row = simulationConfig.height() +1 - (int) (y / cellHeight);
             int column = (int) (x / cellWidth) - 1;
             Vector2d vec = new Vector2d(column, row);
-            System.out.println("KLIK" + row +"  " +column);
             StatsAnimal stat = new StatsAnimal(vec, animalContainer);
             if (paused) {
                 try {
@@ -164,11 +165,11 @@ public class App extends Application implements IRenderGridObserver{
             }
         }
         leftPane.getChildren().add(grid);
-        System.out.println(day);
         stag.setOnCloseRequest(e -> {
             this.threadToRunEngine.suspend();
             stag.close();
         });
+
         Scene simScene = new Scene(splitPane,width,height);
         stag.setTitle("Simulation");
         stag.setScene(simScene);
@@ -213,12 +214,13 @@ public class App extends Application implements IRenderGridObserver{
             this.threadToRunEngine = new Thread(engine);
             this.worldMap = this.engine.getMap();
             this.paused = false;
-            day  = this.engine.getDays();
-            animalList = this.engine.getAnimalsList();
-            animalContainer = this.worldMap.getAnimalContainers();
-            grassMap = this.worldMap.getGrassMap();
-            renderGrid();
-            threadToRunEngine.start();
+            this.animalStats = this.engine.getAnimalStatTracker();
+            this.day  = this.engine.getDays();
+            this.animalList = this.engine.getAnimalsList();
+            this.animalContainer = this.worldMap.getAnimalContainers();
+            this.grassMap = this.worldMap.getGrassMap();
+            this.renderGrid();
+            this.threadToRunEngine.start();
         });
         return new Scene(grid1, 300, 300);
     }
@@ -271,6 +273,7 @@ public class App extends Application implements IRenderGridObserver{
     public VBox rightPanelScene(){
         Button button = new Button("Pause");
         Button buttonContinue = new Button("Continue");
+        Button buttonCSV =  new Button("Save to CSV");
 
         button.setOnAction(event -> {
             if (!paused) {
@@ -283,9 +286,17 @@ public class App extends Application implements IRenderGridObserver{
             paused = false;
             threadToRunEngine.resume();
         });
+        buttonCSV.setOnAction(event -> {
+            if (paused) {
+                GenerateCSV genCSV = new GenerateCSV(statsList);
+                genCSV.generateStats();
+
+            }
+        });
+
+
         StatsMap statsMap = new StatsMap(simulationConfig, animalList,
-                grassMap, animalContainer);
-        MoveDirection mostGen = statsMap.mostGenom();
+                grassMap, animalContainer, animalStats);
         statsMap.meanAge();
         sumAge += statsMap.getSumAge();
         death += statsMap.getDeathAnimal();
@@ -295,11 +306,16 @@ public class App extends Application implements IRenderGridObserver{
         Text textAnimalNumber = new Text("Animals: " +  animalList.size());
         Text textPlantsNumber = new Text("Plants: " + grassMap.size());
         Text textMeanEnergy = new Text("Mean Energy: " + statsMap.meanEnergy());
-        Text textMostGenome = new Text("Most Genome: " + mostGen.value);
+        Text textMostGenome = new Text("Most Genome: " + statsMap.mostGenotypeCode());
         Text textFreeField = new Text("Free field: " + statsMap.freeField());
         Text text10 = new Text("Mean life (day): " + avg);
+        String[] stat = new String[]{String.valueOf(animalList.size()),
+                String.valueOf(statsMap.meanEnergy()), String.valueOf(grassMap.size()),
+                String.valueOf(avg)};
+        statsList.add(Arrays.toString(stat));
+        System.out.println(statsList);
         if (paused) {
-            List<Vector2d> colourVector = statsMap.colorMostGenom(mostGen);
+            List<Vector2d> colourVector = statsMap.colorMostGenom();
             for (Vector2d vector : colourVector) {
                 Pane container = new Pane();
                 container.setStyle("-fx-background-color: rgba(255, 200, 200, 0.8);");
@@ -308,9 +324,10 @@ public class App extends Application implements IRenderGridObserver{
             }
         }
         VBox rightPane = new VBox();
-        rightPane.getChildren().addAll(button,buttonContinue, textAnimalNumber, textPlantsNumber,
+        rightPane.getChildren().addAll(button,buttonContinue,buttonCSV, textAnimalNumber, textPlantsNumber,
                 textMeanEnergy, textMostGenome, textFreeField, text10);
         return rightPane;
     }
+
 
 }

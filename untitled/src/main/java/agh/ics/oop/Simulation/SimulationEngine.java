@@ -31,6 +31,11 @@ public class SimulationEngine implements IEngine, Runnable {
     private final List<IRenderGridObserver> renderGridobservers = new ArrayList<>();
     private final int moveDelay;
     private final SimulationConfig simulationConfig;
+
+    public AnimalStatisticTracker getAnimalStatTracker() {
+        return animalStatTracker;
+    }
+
     private final AnimalStatisticTracker animalStatTracker = new AnimalStatisticTracker();
 
     public SimulationEngine(SimulationConfig simulationConfig, int moveDelay) throws IllegalArgumentException {
@@ -58,7 +63,7 @@ public class SimulationEngine implements IEngine, Runnable {
                 currAnimalGen.applyABitOfMadness();
             }
             Animal animal = new Animal(map, newPosition, this.simulationConfig.animalStartEnergy(), currAnimalGen);
-//            Animal todeleteanimal = new Animal(map, newPosition, this.simulationConfig.animalStartEnergy(), new Genotype(newGen));
+            Animal todeleteanimal = new Animal(map, newPosition, this.simulationConfig.animalStartEnergy(), new Genotype(newGen));
             //map.place(todeleteanimal);
             //this.animalsList.add(todeleteanimal);
             map.place(animal);
@@ -66,7 +71,6 @@ public class SimulationEngine implements IEngine, Runnable {
             animal.setBornDate(day);
             animal.addLifeObserver(this.animalStatTracker);
             animal.addLifeObserver(this.map);
-            animal.addGrassObserver(this.animalStatTracker);
             animal.born();
 
 
@@ -126,7 +130,9 @@ public class SimulationEngine implements IEngine, Runnable {
                 .filter((animal -> animal.getStatus().equals(AnimalStatus.DEAD)))
                 .forEach((animal) -> {
                     animCont.get(animal.getPosition()).removeAnimal(animal);
-
+                    if (this.simulationConfig.AfforestationType().equals(AfforestationType.TOXICCORPSES)) {
+                        this.map.addDeadAtPosition(animal.getPosition());
+                    }
                     animal.died();
                 });
         this.animalsList.removeIf(animal -> Objects.equals(animal.getStatus(), AnimalStatus.DEAD));
@@ -158,7 +164,6 @@ public class SimulationEngine implements IEngine, Runnable {
                     this.animalsList.add(child);
                     child.addLifeObserver(this.animalStatTracker);
                     child.addLifeObserver(this.map);
-                    child.addGrassObserver(this.animalStatTracker);
                     child.born();
 //                    this.map.getAnimalContainers().get(child.getPosition()).addNewAnimal(child);
                 }

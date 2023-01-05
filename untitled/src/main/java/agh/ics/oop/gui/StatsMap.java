@@ -1,33 +1,39 @@
 package agh.ics.oop.gui;
 
+import agh.ics.oop.AnimalTracker.AnimalStatisticTracker;
 import agh.ics.oop.MapElements.Animal;
 import agh.ics.oop.MapElements.AnimalStatus;
+import agh.ics.oop.MapElements.Genotype;
 import agh.ics.oop.MapElements.Grass;
 import agh.ics.oop.MoveDirection;
 import agh.ics.oop.Simulation.SimulationConfig;
 import agh.ics.oop.Vector2d;
 import agh.ics.oop.WorldMapComp.AnimalContainer;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 
 public class StatsMap {
+
+    private AnimalStatisticTracker ast;
 
     private final SimulationConfig simconfig;
     private final List<Animal> animalList;
     private final HashMap<Vector2d, Grass> grassMap;
     private final HashMap<Vector2d, AnimalContainer> animalContainer;
-
+    private AnimalStatisticTracker animalStats;
+    private SortedMap<Integer, HashSet<Genotype>> genotypesCount;
+    private HashMap<Genotype, Integer> gentypesHelper;
     private int sumAge =0;
     private int deathAnimal = 0;
     public StatsMap(SimulationConfig simconfig, List<Animal> animalList, HashMap<Vector2d, Grass> grassMap,
-                    HashMap<Vector2d, AnimalContainer> animalContainer){
+                    HashMap<Vector2d, AnimalContainer> animalContainer, AnimalStatisticTracker animalstats){
         this.simconfig = simconfig;
         this.animalList = animalList;
         this.grassMap = grassMap;
         this.animalContainer = animalContainer;
+        this.animalStats = animalstats;
+        this.gentypesHelper = animalstats.getGentypesHelper();
+        this.genotypesCount = animalstats.getGenotypesCount();
     }
 
     public double meanEnergy() {
@@ -57,10 +63,11 @@ public class StatsMap {
         return MoveDirection.getByValue(maxIndex).get();
     }
 
-    public List<Vector2d> colorMostGenom(MoveDirection mostGen){
+    public List<Vector2d> colorMostGenom(){
+        Genotype code = mostGenotype();
         List<Vector2d> colorVectors = new ArrayList<>();
         for (Animal animal : animalList) {
-            if (animal.getGenotype().getCurrentMove().equals(mostGen)){
+            if (animal.getGenotype().equals(code)){
                 Vector2d vec = animal.getPosition();
                 colorVectors.add(vec);
             }
@@ -103,6 +110,22 @@ public int freeField(){
     }
     public int getDeathAnimal() {
         return deathAnimal;
+    }
+
+
+    public StringBuilder mostGenotypeCode(){
+        Genotype code = mostGenotype();
+        List<MoveDirection> codeList = code.getGenes();
+        StringBuilder genCode = new StringBuilder("[ ");
+        for (MoveDirection gen: codeList){
+            genCode.append(gen.value).append(" ");
+        }
+        genCode.append("]");
+        return genCode;
+    }
+    public Genotype mostGenotype(){
+        Integer maxKey = genotypesCount.lastKey();
+        return genotypesCount.get(maxKey).iterator().next();
     }
 
 }
