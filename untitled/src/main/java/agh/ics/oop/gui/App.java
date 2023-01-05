@@ -1,4 +1,4 @@
-package agh.ics.oop.gui;qw
+package agh.ics.oop.gui;
 import agh.ics.oop.*;
 import agh.ics.oop.AnimalTracker.AnimalStatisticTracker;
 import agh.ics.oop.MapElements.Animal;
